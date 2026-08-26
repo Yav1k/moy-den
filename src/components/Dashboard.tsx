@@ -10,6 +10,7 @@ import { StatsPanel } from "./StatsPanel";
 import { TaskList } from "./TaskList";
 import { HabitList } from "./HabitList";
 import { JournalCard } from "./JournalCard";
+import { NotificationSettings } from "./NotificationSettings";
 import { CalendarModal } from "./CalendarModal";
 import { formatHuman } from "@/lib/date";
 
@@ -27,6 +28,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     deleteTask,
     addHabit,
     editHabit,
+    setHabitReminder,
     deleteHabit,
     toggleHabitToday,
     toggleHabitOn,
@@ -101,6 +103,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
               onToggle={toggleHabitToday}
               onEdit={editHabit}
               onDelete={deleteHabit}
+              onSetReminder={setHabitReminder}
             />
             <TaskList
               tasks={todayTasks}
@@ -114,6 +117,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
               content={journalForDate(today)}
               onSave={saveJournal}
             />
+            <NotificationSettings userId={userId} />
           </>
         )}
       </div>

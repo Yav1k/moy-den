@@ -5,6 +5,7 @@ export type Task = {
   done: boolean;
   task_date: string; // YYYY-MM-DD
   task_time: string | null; // HH:MM
+  reminded_at: string | null;
   position: number;
   created_at: string;
 };
@@ -14,6 +15,7 @@ export type Habit = {
   user_id: string;
   title: string;
   archived: boolean;
+  reminder_time: string | null; // HH:MM
   position: number;
   created_at: string;
 };
@@ -54,6 +56,22 @@ export type ExerciseSet = {
   value: number; // повторения (reps) или секунды (duration)
   position: number;
   created_at: string;
+};
+
+export type PushSubscriptionRow = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+};
+
+export type UserSettings = {
+  user_id: string;
+  daily_reminder_time: string | null; // HH:MM
+  daily_reminder_enabled: boolean;
+  updated_at: string;
 };
 
 export type Database = {
@@ -106,6 +124,23 @@ export type Database = {
           value: number;
         };
         Update: Partial<ExerciseSet>;
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: PushSubscriptionRow;
+        Insert: Partial<PushSubscriptionRow> & {
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+        };
+        Update: Partial<PushSubscriptionRow>;
+        Relationships: [];
+      };
+      user_settings: {
+        Row: UserSettings;
+        Insert: Partial<UserSettings> & { user_id: string };
+        Update: Partial<UserSettings>;
         Relationships: [];
       };
     };

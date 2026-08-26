@@ -8,6 +8,7 @@ create table if not exists public.tasks (
   done boolean not null default false,
   task_date date not null default current_date,
   task_time time,
+  reminded_at timestamptz,
   position integer not null default 0,
   created_at timestamptz not null default now()
 );
@@ -17,6 +18,7 @@ create table if not exists public.habits (
   user_id uuid not null references auth.users (id) on delete cascade,
   title text not null,
   archived boolean not null default false,
+  reminder_time time,
   position integer not null default 0,
   created_at timestamptz not null default now()
 );
@@ -60,6 +62,22 @@ create table if not exists public.exercise_sets (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.user_settings (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  daily_reminder_time time,
+  daily_reminder_enabled boolean not null default true,
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists tasks_user_date_idx on public.tasks (user_id, task_date);
 create index if not exists habits_user_idx on public.habits (user_id, archived);
 create index if not exists habit_logs_user_date_idx on public.habit_logs (user_id, log_date);
@@ -67,6 +85,7 @@ create index if not exists journal_user_date_idx on public.journal_entries (user
 create index if not exists exercises_user_idx on public.exercises (user_id, archived);
 create index if not exists exercise_sets_user_exercise_date_idx
   on public.exercise_sets (user_id, exercise_id, entry_date);
+create index if not exists push_subscriptions_user_idx on public.push_subscriptions (user_id);
 
 -- Row Level Security: каждый пользователь видит и меняет только свои строки.
 
@@ -76,6 +95,8 @@ alter table public.habit_logs enable row level security;
 alter table public.journal_entries enable row level security;
 alter table public.exercises enable row level security;
 alter table public.exercise_sets enable row level security;
+alter table public.push_subscriptions enable row level security;
+alter table public.user_settings enable row level security;
 
 create policy "tasks_select_own" on public.tasks for select using (auth.uid() = user_id);
 create policy "tasks_insert_own" on public.tasks for insert with check (auth.uid() = user_id);
@@ -106,3 +127,11 @@ create policy "exercise_sets_select_own" on public.exercise_sets for select usin
 create policy "exercise_sets_insert_own" on public.exercise_sets for insert with check (auth.uid() = user_id);
 create policy "exercise_sets_update_own" on public.exercise_sets for update using (auth.uid() = user_id);
 create policy "exercise_sets_delete_own" on public.exercise_sets for delete using (auth.uid() = user_id);
+
+create policy "push_subscriptions_select_own" on public.push_subscriptions for select using (auth.uid() = user_id);
+create policy "push_subscriptions_insert_own" on public.push_subscriptions for insert with check (auth.uid() = user_id);
+create policy "push_subscriptions_delete_own" on public.push_subscriptions for delete using (auth.uid() = user_id);
+
+create policy "user_settings_select_own" on public.user_settings for select using (auth.uid() = user_id);
+create policy "user_settings_insert_own" on public.user_settings for insert with check (auth.uid() = user_id);
+create policy "user_settings_update_own" on public.user_settings for update using (auth.uid() = user_id);

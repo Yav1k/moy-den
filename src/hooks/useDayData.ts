@@ -178,6 +178,16 @@ export function useDayData(userId: string) {
     [supabase]
   );
 
+  const setHabitReminder = useCallback(
+    async (id: string, time: string | null) => {
+      setHabits((prev) =>
+        prev.map((h) => (h.id === id ? { ...h, reminder_time: time } : h))
+      );
+      await supabase.from("habits").update({ reminder_time: time }).eq("id", id);
+    },
+    [supabase]
+  );
+
   const deleteHabit = useCallback(
     async (id: string) => {
       setHabits((prev) => prev.filter((h) => h.id !== id));
@@ -359,6 +369,7 @@ export function useDayData(userId: string) {
     deleteTask,
     addHabit,
     editHabit,
+    setHabitReminder,
     deleteHabit,
     toggleHabitToday,
     toggleHabitOn,
