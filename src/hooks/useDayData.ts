@@ -7,6 +7,7 @@ import { addDays, lastNDays, todayKey, toDateKey } from "@/lib/date";
 
 const WEEK_DAYS = 7;
 const STREAK_LOOKBACK_DAYS = 60;
+const HISTORY_DAYS = 400; // ~13 месяцев назад — достаточно для календаря и бэкфилла
 
 export function useDayData(userId: string) {
   const supabase = useMemo(() => createClient(), []);
@@ -18,7 +19,7 @@ export function useDayData(userId: string) {
   const [logs, setLogs] = useState<HabitLog[]>([]);
 
   const loadAll = useCallback(async () => {
-    const since = addDays(today, -(STREAK_LOOKBACK_DAYS - 1));
+    const since = addDays(today, -(HISTORY_DAYS - 1));
 
     const [tasksRes, habitsRes, logsRes] = await Promise.all([
       supabase
@@ -59,26 +60,28 @@ export function useDayData(userId: string) {
     };
   }, [loadAll]);
 
-  // --- Задачи на сегодня ---
+  // --- Задачи ---
 
-  const todayTasks = useMemo(
-    () => tasks.filter((t) => t.task_date === today),
-    [tasks, today]
+  const tasksForDate = useCallback(
+    (dateKey: string) => tasks.filter((t) => t.task_date === dateKey),
+    [tasks]
   );
 
+  const todayTasks = useMemo(() => tasksForDate(today), [tasksForDate, today]);
+
   const addTask = useCallback(
-    async (title: string) => {
+    async (title: string, dateKey: string = today) => {
       const trimmed = title.trim();
       if (!trimmed) return;
-      const position = todayTasks.length;
+      const position = tasksForDate(dateKey).length;
       const { data } = await supabase
         .from("tasks")
-        .insert({ title: trimmed, user_id: userId, task_date: today, position })
+        .insert({ title: trimmed, user_id: userId, task_date: dateKey, position })
         .select()
         .single();
       if (data) setTasks((prev) => [...prev, data]);
     },
-    [supabase, userId, today, todayTasks.length]
+    [supabase, userId, today, tasksForDate]
   );
 
   const toggleTask = useCallback(
@@ -160,22 +163,22 @@ export function useDayData(userId: string) {
     [supabase]
   );
 
-  const toggleHabitToday = useCallback(
-    async (habitId: string) => {
-      const doneNow = isHabitDoneOn(habitId, today);
+  const toggleHabitOn = useCallback(
+    async (habitId: string, dateKey: string = today) => {
+      const doneNow = isHabitDoneOn(habitId, dateKey);
       if (doneNow) {
         setLogs((prev) =>
-          prev.filter((l) => !(l.habit_id === habitId && l.log_date === today))
+          prev.filter((l) => !(l.habit_id === habitId && l.log_date === dateKey))
         );
         await supabase
           .from("habit_logs")
           .delete()
           .eq("habit_id", habitId)
-          .eq("log_date", today);
+          .eq("log_date", dateKey);
       } else {
         const { data } = await supabase
           .from("habit_logs")
-          .insert({ habit_id: habitId, user_id: userId, log_date: today })
+          .insert({ habit_id: habitId, user_id: userId, log_date: dateKey })
           .select()
           .single();
         if (data) setLogs((prev) => [...prev, data]);
@@ -183,33 +186,52 @@ export function useDayData(userId: string) {
           setLogs((prev) => [
             ...prev,
             {
-              id: `optimistic-${habitId}-${today}`,
+              id: `optimistic-${habitId}-${dateKey}`,
               habit_id: habitId,
               user_id: userId,
-              log_date: today,
+              log_date: dateKey,
               created_at: new Date().toISOString(),
             },
           ]);
       }
     },
-    [supabase, userId, today, isHabitDoneOn]
+    [supabase, userId, isHabitDoneOn, today]
+  );
+
+  const toggleHabitToday = useCallback(
+    (habitId: string) => toggleHabitOn(habitId, today),
+    [toggleHabitOn, today]
   );
 
   // --- Статистика ---
 
+  const habitsActiveOn = useCallback(
+    (dateKey: string) => habits.filter((h) => toDateKey(new Date(h.created_at)) <= dateKey),
+    [habits]
+  );
+
+  const doneCountOn = useCallback(
+    (dateKey: string) => logs.filter((l) => l.log_date === dateKey).length,
+    [logs]
+  );
+
+  const getDayStats = useCallback(
+    (dateKey: string) => {
+      const dayHabits = habitsActiveOn(dateKey);
+      const dayHabitsDone = doneCountOn(dateKey);
+      const dayTasks = tasksForDate(dateKey);
+      const dayTasksDone = dayTasks.filter((t) => t.done).length;
+      const total = dayHabits.length + dayTasks.length;
+      const done = dayHabitsDone + dayTasksDone;
+      return { total, done, ratio: total === 0 ? null : done / total };
+    },
+    [habitsActiveOn, doneCountOn, tasksForDate]
+  );
+
   const stats = useMemo(() => {
-    const habitsActiveOn = (dateKey: string) =>
-      habits.filter((h) => toDateKey(new Date(h.created_at)) <= dateKey);
-
-    const doneCountOn = (dateKey: string) =>
-      logs.filter((l) => l.log_date === dateKey).length;
-
-    const tasksOn = (dateKey: string) => tasks.filter((t) => t.task_date === dateKey);
-
-    // Сегодня
     const todayHabits = habitsActiveOn(today);
     const todayHabitsDone = doneCountOn(today);
-    const todayTasksList = tasksOn(today);
+    const todayTasksList = tasksForDate(today);
     const todayTasksDone = todayTasksList.filter((t) => t.done).length;
     const todayTotal = todayHabits.length + todayTasksList.length;
     const todayDone = todayHabitsDone + todayTasksDone;
@@ -220,7 +242,7 @@ export function useDayData(userId: string) {
     let weekDone = 0;
     for (const day of week) {
       const dayHabits = habitsActiveOn(day);
-      const dayTasks = tasksOn(day);
+      const dayTasks = tasksForDate(day);
       weekTotal += dayHabits.length + dayTasks.length;
       weekDone += doneCountOn(day) + dayTasks.filter((t) => t.done).length;
     }
@@ -251,12 +273,13 @@ export function useDayData(userId: string) {
     }
 
     return { todayTotal, todayDone, weekTotal, weekDone, streak };
-  }, [habits, logs, tasks, today]);
+  }, [habitsActiveOn, doneCountOn, tasksForDate, today]);
 
   return {
     loading,
     today,
     todayTasks,
+    tasksForDate,
     habits,
     isHabitDoneOn,
     addTask,
@@ -267,6 +290,8 @@ export function useDayData(userId: string) {
     editHabit,
     deleteHabit,
     toggleHabitToday,
+    toggleHabitOn,
+    getDayStats,
     stats,
     refresh: loadAll,
   };

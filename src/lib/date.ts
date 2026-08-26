@@ -45,3 +45,43 @@ export function formatHuman(dateKey: string): string {
   const weekday = WEEKDAYS_RU[date.getDay()];
   return `${d}.${String(m).padStart(2, "0")}, ${weekday}`;
 }
+
+export const WEEKDAYS_SHORT_MON_FIRST = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+const MONTHS_RU = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+];
+
+export function monthLabel(year: number, month: number): string {
+  return `${MONTHS_RU[month]} ${year}`;
+}
+
+/** Матрица дней месяца по неделям (понедельник — первый день), с "хвостами"
+ * соседних месяцев для заполнения сетки календаря. */
+export function getMonthMatrix(year: number, month: number): string[][] {
+  const firstOfMonth = new Date(year, month, 1);
+  const firstWeekday = (firstOfMonth.getDay() + 6) % 7; // 0=пн..6=вс
+  const gridStart = toDateKey(new Date(year, month, 1 - firstWeekday));
+
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const lastWeekday = (lastOfMonth.getDay() + 6) % 7;
+  const gridEnd = toDateKey(new Date(year, month + 1, 6 - lastWeekday));
+
+  const allDays = daysBetween(gridStart, gridEnd);
+  const weeks: string[][] = [];
+  for (let i = 0; i < allDays.length; i += 7) {
+    weeks.push(allDays.slice(i, i + 7));
+  }
+  return weeks;
+}

@@ -8,12 +8,15 @@ export function ChecklistRow({
   onToggle,
   onEdit,
   onDelete,
+  locked = false,
 }: {
   title: string;
   done: boolean;
   onToggle: () => void;
   onEdit: (title: string) => void;
   onDelete: () => void;
+  /** Скрывает переименование и удаление — для строк, не привязанных к этому месту (например, привычка в карточке дня в календаре). */
+  locked?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
@@ -49,6 +52,14 @@ export function ChecklistRow({
           }}
           className="flex-1 rounded-lg border border-border bg-surface px-2 py-1 text-sm text-text outline-none"
         />
+      ) : locked ? (
+        <span
+          className={`flex-1 truncate text-left text-sm ${
+            done ? "text-muted line-through" : "text-text"
+          }`}
+        >
+          {title}
+        </span>
       ) : (
         <button
           onClick={() => setEditing(true)}
@@ -60,15 +71,17 @@ export function ChecklistRow({
         </button>
       )}
 
-      <button
-        onClick={onDelete}
-        aria-label="Удалить"
-        className="shrink-0 rounded-lg p-1 text-muted opacity-0 transition hover:bg-surface hover:text-red-500 group-hover:opacity-100"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
-        </svg>
-      </button>
+      {!locked && (
+        <button
+          onClick={onDelete}
+          aria-label="Удалить"
+          className="shrink-0 rounded-lg p-1 text-muted opacity-0 transition hover:bg-surface hover:text-red-500 group-hover:opacity-100"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

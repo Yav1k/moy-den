@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useDayData } from "@/hooks/useDayData";
 import { MotivationCard } from "./MotivationCard";
@@ -7,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { StatsPanel } from "./StatsPanel";
 import { TaskList } from "./TaskList";
 import { HabitList } from "./HabitList";
+import { CalendarModal } from "./CalendarModal";
 import { formatHuman } from "@/lib/date";
 
 export function Dashboard({ userId, email }: { userId: string; email: string }) {
@@ -14,6 +16,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     loading,
     today,
     todayTasks,
+    tasksForDate,
     habits,
     isHabitDoneOn,
     addTask,
@@ -24,8 +27,12 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     editHabit,
     deleteHabit,
     toggleHabitToday,
+    toggleHabitOn,
+    getDayStats,
     stats,
   } = useDayData(userId);
+
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   async function signOut() {
     const supabase = createClient();
@@ -41,6 +48,16 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
           <p className="text-sm text-muted">{formatHuman(today)}</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCalendarOpen(true)}
+            aria-label="Календарь"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+          </button>
           <ThemeToggle />
           <button
             onClick={signOut}
@@ -81,6 +98,22 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
           </>
         )}
       </div>
+
+      {calendarOpen && (
+        <CalendarModal
+          today={today}
+          getDayStats={getDayStats}
+          tasksForDate={tasksForDate}
+          habits={habits}
+          isHabitDoneOn={isHabitDoneOn}
+          onAddTask={addTask}
+          onToggleTask={toggleTask}
+          onEditTask={editTask}
+          onDeleteTask={deleteTask}
+          onToggleHabit={toggleHabitOn}
+          onClose={() => setCalendarOpen(false)}
+        />
+      )}
     </main>
   );
 }
