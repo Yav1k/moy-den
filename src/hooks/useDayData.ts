@@ -47,6 +47,18 @@ export function useDayData(userId: string) {
     loadAll();
   }, [loadAll]);
 
+  useEffect(() => {
+    function onFocus() {
+      if (document.visibilityState === "visible") loadAll();
+    }
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [loadAll]);
+
   // --- Задачи на сегодня ---
 
   const todayTasks = useMemo(
