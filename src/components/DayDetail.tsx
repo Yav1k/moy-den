@@ -112,8 +112,8 @@ export function DayDetail({
             dateKey={dateKey}
             content={journalContent}
             onSave={onSaveJournal}
-            title={isToday ? "Дневник дня" : "Дневник"}
-            placeholder="Что было в этот день..."
+            title="Дневник эмоций"
+            placeholder="Что чувствовал(а) в этот день..."
           />
         </div>
       )}
