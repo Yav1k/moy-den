@@ -7,6 +7,7 @@ create table if not exists public.tasks (
   title text not null,
   done boolean not null default false,
   task_date date not null default current_date,
+  task_time time,
   position integer not null default 0,
   created_at timestamptz not null default now()
 );
@@ -29,15 +30,26 @@ create table if not exists public.habit_logs (
   unique (habit_id, log_date)
 );
 
+create table if not exists public.journal_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  entry_date date not null,
+  content text not null default '',
+  updated_at timestamptz not null default now(),
+  unique (user_id, entry_date)
+);
+
 create index if not exists tasks_user_date_idx on public.tasks (user_id, task_date);
 create index if not exists habits_user_idx on public.habits (user_id, archived);
 create index if not exists habit_logs_user_date_idx on public.habit_logs (user_id, log_date);
+create index if not exists journal_user_date_idx on public.journal_entries (user_id, entry_date);
 
 -- Row Level Security: каждый пользователь видит и меняет только свои строки.
 
 alter table public.tasks enable row level security;
 alter table public.habits enable row level security;
 alter table public.habit_logs enable row level security;
+alter table public.journal_entries enable row level security;
 
 create policy "tasks_select_own" on public.tasks for select using (auth.uid() = user_id);
 create policy "tasks_insert_own" on public.tasks for insert with check (auth.uid() = user_id);
@@ -53,3 +65,8 @@ create policy "habit_logs_select_own" on public.habit_logs for select using (aut
 create policy "habit_logs_insert_own" on public.habit_logs for insert with check (auth.uid() = user_id);
 create policy "habit_logs_update_own" on public.habit_logs for update using (auth.uid() = user_id);
 create policy "habit_logs_delete_own" on public.habit_logs for delete using (auth.uid() = user_id);
+
+create policy "journal_select_own" on public.journal_entries for select using (auth.uid() = user_id);
+create policy "journal_insert_own" on public.journal_entries for insert with check (auth.uid() = user_id);
+create policy "journal_update_own" on public.journal_entries for update using (auth.uid() = user_id);
+create policy "journal_delete_own" on public.journal_entries for delete using (auth.uid() = user_id);

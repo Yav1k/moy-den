@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Habit, HabitLog, Task } from "@/lib/supabase/types";
+import type { Habit, HabitLog, JournalEntry, Task } from "@/lib/supabase/types";
 import { addDays, lastNDays, todayKey, toDateKey } from "@/lib/date";
 
 const WEEK_DAYS = 7;
@@ -17,15 +17,18 @@ export function useDayData(userId: string) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
+  const [journal, setJournal] = useState<JournalEntry[]>([]);
 
   const loadAll = useCallback(async () => {
     const since = addDays(today, -(HISTORY_DAYS - 1));
+    const until = addDays(today, HISTORY_DAYS); // с запасом вперёд — для планов на будущее
 
-    const [tasksRes, habitsRes, logsRes] = await Promise.all([
+    const [tasksRes, habitsRes, logsRes, journalRes] = await Promise.all([
       supabase
         .from("tasks")
         .select("*")
         .gte("task_date", since)
+        .lte("task_date", until)
         .order("position", { ascending: true }),
       supabase
         .from("habits")
@@ -36,11 +39,17 @@ export function useDayData(userId: string) {
         .from("habit_logs")
         .select("*")
         .gte("log_date", since),
+      supabase
+        .from("journal_entries")
+        .select("*")
+        .gte("entry_date", since)
+        .lte("entry_date", today),
     ]);
 
     if (tasksRes.data) setTasks(tasksRes.data);
     if (habitsRes.data) setHabits(habitsRes.data);
     if (logsRes.data) setLogs(logsRes.data);
+    if (journalRes.data) setJournal(journalRes.data);
     setLoading(false);
   }, [supabase, today]);
 
@@ -63,20 +72,34 @@ export function useDayData(userId: string) {
   // --- Задачи ---
 
   const tasksForDate = useCallback(
-    (dateKey: string) => tasks.filter((t) => t.task_date === dateKey),
+    (dateKey: string) =>
+      tasks
+        .filter((t) => t.task_date === dateKey)
+        .sort((a, b) => {
+          if (a.task_time && b.task_time) return a.task_time.localeCompare(b.task_time);
+          if (a.task_time) return -1;
+          if (b.task_time) return 1;
+          return a.position - b.position;
+        }),
     [tasks]
   );
 
   const todayTasks = useMemo(() => tasksForDate(today), [tasksForDate, today]);
 
   const addTask = useCallback(
-    async (title: string, dateKey: string = today) => {
+    async (title: string, dateKey: string = today, time: string | null = null) => {
       const trimmed = title.trim();
       if (!trimmed) return;
       const position = tasksForDate(dateKey).length;
       const { data } = await supabase
         .from("tasks")
-        .insert({ title: trimmed, user_id: userId, task_date: dateKey, position })
+        .insert({
+          title: trimmed,
+          user_id: userId,
+          task_date: dateKey,
+          task_time: time,
+          position,
+        })
         .select()
         .single();
       if (data) setTasks((prev) => [...prev, data]);
@@ -275,6 +298,54 @@ export function useDayData(userId: string) {
     return { todayTotal, todayDone, weekTotal, weekDone, streak };
   }, [habitsActiveOn, doneCountOn, tasksForDate, today]);
 
+  // --- Дневник дня ---
+
+  const journalByDate = useMemo(() => {
+    const map = new Map<string, JournalEntry>();
+    for (const entry of journal) map.set(entry.entry_date, entry);
+    return map;
+  }, [journal]);
+
+  const journalForDate = useCallback(
+    (dateKey: string) => journalByDate.get(dateKey)?.content ?? "",
+    [journalByDate]
+  );
+
+  const saveJournal = useCallback(
+    async (dateKey: string, content: string) => {
+      setJournal((prev) => {
+        const existing = prev.find((e) => e.entry_date === dateKey);
+        if (existing) {
+          return prev.map((e) => (e.entry_date === dateKey ? { ...e, content } : e));
+        }
+        return [
+          ...prev,
+          {
+            id: `optimistic-${dateKey}`,
+            user_id: userId,
+            entry_date: dateKey,
+            content,
+            updated_at: new Date().toISOString(),
+          },
+        ];
+      });
+      await supabase
+        .from("journal_entries")
+        .upsert(
+          { user_id: userId, entry_date: dateKey, content, updated_at: new Date().toISOString() },
+          { onConflict: "user_id,entry_date" }
+        );
+    },
+    [supabase, userId]
+  );
+
+  // --- Планы (для точек в календаре на будущих днях) ---
+
+  const hasPlansOn = useCallback(
+    (dateKey: string) => tasksForDate(dateKey).length > 0,
+    [tasksForDate]
+  );
+
   return {
     loading,
     today,
@@ -292,6 +363,9 @@ export function useDayData(userId: string) {
     toggleHabitToday,
     toggleHabitOn,
     getDayStats,
+    hasPlansOn,
+    journalForDate,
+    saveJournal,
     stats,
     refresh: loadAll,
   };

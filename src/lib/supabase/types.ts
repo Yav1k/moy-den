@@ -4,6 +4,7 @@ export type Task = {
   title: string;
   done: boolean;
   task_date: string; // YYYY-MM-DD
+  task_time: string | null; // HH:MM
   position: number;
   created_at: string;
 };
@@ -23,6 +24,14 @@ export type HabitLog = {
   user_id: string;
   log_date: string; // YYYY-MM-DD
   created_at: string;
+};
+
+export type JournalEntry = {
+  id: string;
+  user_id: string;
+  entry_date: string; // YYYY-MM-DD
+  content: string;
+  updated_at: string;
 };
 
 export type Database = {
@@ -48,6 +57,16 @@ export type Database = {
           log_date: string;
         };
         Update: Partial<HabitLog>;
+        Relationships: [];
+      };
+      journal_entries: {
+        Row: JournalEntry;
+        Insert: Partial<JournalEntry> & {
+          user_id: string;
+          entry_date: string;
+          content: string;
+        };
+        Update: Partial<JournalEntry>;
         Relationships: [];
       };
     };

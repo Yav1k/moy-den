@@ -8,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { StatsPanel } from "./StatsPanel";
 import { TaskList } from "./TaskList";
 import { HabitList } from "./HabitList";
+import { JournalCard } from "./JournalCard";
 import { CalendarModal } from "./CalendarModal";
 import { formatHuman } from "@/lib/date";
 
@@ -29,6 +30,9 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     toggleHabitToday,
     toggleHabitOn,
     getDayStats,
+    hasPlansOn,
+    journalForDate,
+    saveJournal,
     stats,
   } = useDayData(userId);
 
@@ -90,10 +94,15 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
             />
             <TaskList
               tasks={todayTasks}
-              onAdd={addTask}
+              onAdd={(title, time) => addTask(title, today, time)}
               onToggle={toggleTask}
               onEdit={editTask}
               onDelete={deleteTask}
+            />
+            <JournalCard
+              dateKey={today}
+              content={journalForDate(today)}
+              onSave={saveJournal}
             />
           </>
         )}
@@ -103,9 +112,12 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
         <CalendarModal
           today={today}
           getDayStats={getDayStats}
+          hasPlansOn={hasPlansOn}
           tasksForDate={tasksForDate}
           habits={habits}
           isHabitDoneOn={isHabitDoneOn}
+          journalForDate={journalForDate}
+          onSaveJournal={saveJournal}
           onAddTask={addTask}
           onToggleTask={toggleTask}
           onEditTask={editTask}

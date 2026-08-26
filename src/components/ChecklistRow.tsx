@@ -9,6 +9,7 @@ export function ChecklistRow({
   onEdit,
   onDelete,
   locked = false,
+  meta,
 }: {
   title: string;
   done: boolean;
@@ -17,6 +18,8 @@ export function ChecklistRow({
   onDelete: () => void;
   /** Скрывает переименование и удаление — для строк, не привязанных к этому месту (например, привычка в карточке дня в календаре). */
   locked?: boolean;
+  /** Небольшая метка перед текстом, например время задачи. */
+  meta?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
@@ -58,6 +61,7 @@ export function ChecklistRow({
             done ? "text-muted line-through" : "text-text"
           }`}
         >
+          {meta && <span className="mr-1.5 text-xs font-medium text-accent">{meta}</span>}
           {title}
         </span>
       ) : (
@@ -67,6 +71,7 @@ export function ChecklistRow({
             done ? "text-muted line-through" : "text-text"
           }`}
         >
+          {meta && <span className="mr-1.5 text-xs font-medium text-accent">{meta}</span>}
           {title}
         </button>
       )}

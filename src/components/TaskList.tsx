@@ -2,7 +2,7 @@
 
 import type { Task } from "@/lib/supabase/types";
 import { ChecklistRow } from "./ChecklistRow";
-import { AddInline } from "./AddInline";
+import { AddTaskInline } from "./AddTaskInline";
 
 export function TaskList({
   tasks,
@@ -12,7 +12,7 @@ export function TaskList({
   onDelete,
 }: {
   tasks: Task[];
-  onAdd: (title: string) => void;
+  onAdd: (title: string, time: string | null) => void;
   onToggle: (id: string) => void;
   onEdit: (id: string, title: string) => void;
   onDelete: (id: string) => void;
@@ -32,6 +32,7 @@ export function TaskList({
             key={task.id}
             title={task.title}
             done={task.done}
+            meta={task.task_time ? task.task_time.slice(0, 5) : undefined}
             onToggle={() => onToggle(task.id)}
             onEdit={(title) => onEdit(task.id, title)}
             onDelete={() => onDelete(task.id)}
@@ -39,7 +40,7 @@ export function TaskList({
         ))}
       </div>
 
-      <AddInline placeholder="Новая задача..." onAdd={onAdd} />
+      <AddTaskInline placeholder="Новая задача..." onAdd={onAdd} />
     </section>
   );
 }

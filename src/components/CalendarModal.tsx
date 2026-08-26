@@ -10,9 +10,12 @@ type DayStats = { total: number; done: number; ratio: number | null };
 export function CalendarModal({
   today,
   getDayStats,
+  hasPlansOn,
   tasksForDate,
   habits,
   isHabitDoneOn,
+  journalForDate,
+  onSaveJournal,
   onAddTask,
   onToggleTask,
   onEditTask,
@@ -22,10 +25,13 @@ export function CalendarModal({
 }: {
   today: string;
   getDayStats: (dateKey: string) => DayStats;
+  hasPlansOn: (dateKey: string) => boolean;
   tasksForDate: (dateKey: string) => Task[];
   habits: Habit[];
   isHabitDoneOn: (habitId: string, dateKey: string) => boolean;
-  onAddTask: (title: string, dateKey: string) => void;
+  journalForDate: (dateKey: string) => string;
+  onSaveJournal: (dateKey: string, content: string) => void;
+  onAddTask: (title: string, dateKey: string, time: string | null) => void;
   onToggleTask: (id: string) => void;
   onEditTask: (id: string, title: string) => void;
   onDeleteTask: (id: string) => void;
@@ -67,10 +73,12 @@ export function CalendarModal({
           {selectedDate ? (
             <DayDetail
               dateKey={selectedDate}
-              isToday={selectedDate === today}
+              today={today}
               tasks={tasksForDate(selectedDate)}
               habits={habits}
               isHabitDoneOn={isHabitDoneOn}
+              journalContent={journalForDate(selectedDate)}
+              onSaveJournal={onSaveJournal}
               onAddTask={onAddTask}
               onToggleTask={onToggleTask}
               onEditTask={onEditTask}
@@ -84,6 +92,7 @@ export function CalendarModal({
               month={view.month}
               today={today}
               getDayStats={getDayStats}
+              hasPlansOn={hasPlansOn}
               onSelectDay={setSelectedDate}
               onPrevMonth={() => shiftMonth(-1)}
               onNextMonth={() => shiftMonth(1)}

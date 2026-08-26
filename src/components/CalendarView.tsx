@@ -9,6 +9,7 @@ export function CalendarView({
   month,
   today,
   getDayStats,
+  hasPlansOn,
   onSelectDay,
   onPrevMonth,
   onNextMonth,
@@ -18,6 +19,7 @@ export function CalendarView({
   month: number;
   today: string;
   getDayStats: (dateKey: string) => DayStats;
+  hasPlansOn: (dateKey: string) => boolean;
   onSelectDay: (dateKey: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
@@ -25,29 +27,29 @@ export function CalendarView({
 }) {
   const weeks = getMonthMatrix(year, month);
 
-  function cellClasses(dateKey: string) {
+  function cellClasses(dateKey: string, isFuture: boolean) {
     const inMonth = Number(dateKey.slice(5, 7)) - 1 === month;
-    const isFuture = dateKey > today;
     const isToday = dateKey === today;
-    const { ratio } = isFuture ? { ratio: null } : getDayStats(dateKey);
+    const ratio = isFuture ? null : getDayStats(dateKey).ratio;
 
-    const base = "aspect-square rounded-lg text-sm flex items-center justify-center transition";
+    const base =
+      "relative aspect-square rounded-lg text-sm flex items-center justify-center transition cursor-pointer";
     const opacity = inMonth ? "" : "opacity-30";
     const ring = isToday ? "ring-2 ring-accent" : "";
 
     if (isFuture) {
-      return `${base} ${opacity} text-muted cursor-default`;
+      return `${base} ${opacity} ${ring} bg-surface2 text-text hover:bg-border`;
     }
     if (ratio === null) {
-      return `${base} ${opacity} ${ring} bg-surface2 text-text hover:bg-border cursor-pointer`;
+      return `${base} ${opacity} ${ring} bg-surface2 text-text hover:bg-border`;
     }
     if (ratio >= 1) {
-      return `${base} ${opacity} ${ring} bg-accent text-accent-fg font-medium cursor-pointer`;
+      return `${base} ${opacity} ${ring} bg-accent text-accent-fg font-medium`;
     }
     if (ratio > 0) {
-      return `${base} ${opacity} ${ring} bg-accent/40 text-text cursor-pointer`;
+      return `${base} ${opacity} ${ring} bg-accent/40 text-text`;
     }
-    return `${base} ${opacity} ${ring} bg-surface2 text-muted cursor-pointer`;
+    return `${base} ${opacity} ${ring} bg-surface2 text-muted`;
   }
 
   return (
@@ -83,16 +85,21 @@ export function CalendarView({
       </div>
 
       <div className="mt-1 grid grid-cols-7 gap-1 px-1">
-        {weeks.flat().map((dateKey) => (
-          <button
-            key={dateKey}
-            onClick={() => dateKey <= today && onSelectDay(dateKey)}
-            disabled={dateKey > today}
-            className={cellClasses(dateKey)}
-          >
-            {Number(dateKey.slice(8, 10))}
-          </button>
-        ))}
+        {weeks.flat().map((dateKey) => {
+          const isFuture = dateKey > today;
+          return (
+            <button
+              key={dateKey}
+              onClick={() => onSelectDay(dateKey)}
+              className={cellClasses(dateKey, isFuture)}
+            >
+              {Number(dateKey.slice(8, 10))}
+              {isFuture && hasPlansOn(dateKey) && (
+                <span className="absolute bottom-1 h-1.5 w-1.5 rounded-full bg-accent" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
