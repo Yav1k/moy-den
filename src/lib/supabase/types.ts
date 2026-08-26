@@ -34,6 +34,28 @@ export type JournalEntry = {
   updated_at: string;
 };
 
+export type ExerciseKind = "reps" | "duration";
+
+export type Exercise = {
+  id: string;
+  user_id: string;
+  title: string;
+  kind: ExerciseKind;
+  position: number;
+  archived: boolean;
+  created_at: string;
+};
+
+export type ExerciseSet = {
+  id: string;
+  user_id: string;
+  exercise_id: string;
+  entry_date: string; // YYYY-MM-DD
+  value: number; // повторения (reps) или секунды (duration)
+  position: number;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -67,6 +89,23 @@ export type Database = {
           content: string;
         };
         Update: Partial<JournalEntry>;
+        Relationships: [];
+      };
+      exercises: {
+        Row: Exercise;
+        Insert: Partial<Exercise> & { title: string; user_id: string; kind: ExerciseKind };
+        Update: Partial<Exercise>;
+        Relationships: [];
+      };
+      exercise_sets: {
+        Row: ExerciseSet;
+        Insert: Partial<ExerciseSet> & {
+          user_id: string;
+          exercise_id: string;
+          entry_date: string;
+          value: number;
+        };
+        Update: Partial<ExerciseSet>;
         Relationships: [];
       };
     };

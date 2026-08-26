@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useDayData } from "@/hooks/useDayData";
 import { MotivationCard } from "./MotivationCard";
@@ -52,6 +53,15 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
           <p className="text-sm text-muted">{formatHuman(today)}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/workout"
+            aria-label="Тренировка"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6.5 6.5 17.5 17.5M4 8l4-4 2 2-4 4-2-2ZM14 18l4-4 2 2-4 4-2-2ZM2 6l2-2M22 18l-2 2" />
+            </svg>
+          </Link>
           <button
             onClick={() => setCalendarOpen(true)}
             aria-label="Календарь"
