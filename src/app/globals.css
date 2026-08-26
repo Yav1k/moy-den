@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: 248 250 252;
+  --color-surface: 255 255 255;
+  --color-surface2: 241 245 249;
+  --color-border: 226 232 240;
+  --color-text: 15 23 42;
+  --color-muted: 100 116 139;
+  --color-accent: 79 70 229;
+  --color-accent-fg: 255 255 255;
+}
+
+.dark {
+  --color-bg: 10 12 18;
+  --color-surface: 22 25 34;
+  --color-surface2: 30 34 46;
+  --color-border: 45 50 64;
+  --color-text: 236 239 244;
+  --color-muted: 148 158 176;
+  --color-accent: 129 140 248;
+  --color-accent-fg: 17 19 26;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
+}
+
+input[type="checkbox"].task-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgb(var(--color-border));
+  background-color: rgb(var(--color-surface));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+input[type="checkbox"].task-checkbox:checked {
+  background-color: rgb(var(--color-accent));
+  border-color: rgb(var(--color-accent));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 65%;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--color-border));
+  border-radius: 999px;
+}
