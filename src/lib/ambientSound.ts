@@ -4,7 +4,7 @@ export type AmbientSound = {
   setMuted: (muted: boolean) => void;
 };
 
-const TARGET_VOLUME = 0.18;
+const TARGET_VOLUME = 0.3;
 
 export function createAmbientSound(): AmbientSound {
   let ctx: AudioContext | null = null;
@@ -25,36 +25,42 @@ export function createAmbientSound(): AmbientSound {
 
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
-    filter.frequency.value = 900;
+    filter.frequency.value = 2600;
     filter.connect(master);
 
     // Soft detuned pad — calm sustained triad, slowly breathing in volume.
-    const freqs = [130.81, 164.81, 196.0]; // C3, E3, G3
-    oscNodes = freqs.map((f, i) => {
-      const osc = ctx!.createOscillator();
-      osc.type = "sine";
-      osc.frequency.value = f;
-      osc.detune.value = (i - 1) * 4;
+    // A base layer plus a quieter octave-up layer so it stays audible on small phone speakers.
+    const layers = [
+      { freqs: [130.81, 164.81, 196.0], gain: 0.4 }, // C3, E3, G3
+      { freqs: [261.63, 329.63, 392.0], gain: 0.16 }, // C4, E4, G4
+    ];
+    oscNodes = layers.flatMap(({ freqs, gain: layerGain }) =>
+      freqs.map((f, i) => {
+        const osc = ctx!.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = f;
+        osc.detune.value = (i - 1) * 4;
 
-      const gain = ctx!.createGain();
-      gain.gain.value = 0.5;
+        const gain = ctx!.createGain();
+        gain.gain.value = layerGain;
 
-      const lfo = ctx!.createOscillator();
-      lfo.type = "sine";
-      lfo.frequency.value = 0.05 + i * 0.02;
-      const lfoGain = ctx!.createGain();
-      lfoGain.gain.value = 0.15;
-      lfo.connect(lfoGain);
-      lfoGain.connect(gain.gain);
+        const lfo = ctx!.createOscillator();
+        lfo.type = "sine";
+        lfo.frequency.value = 0.05 + i * 0.02;
+        const lfoGain = ctx!.createGain();
+        lfoGain.gain.value = layerGain * 0.3;
+        lfo.connect(lfoGain);
+        lfoGain.connect(gain.gain);
 
-      osc.connect(gain);
-      gain.connect(filter);
+        osc.connect(gain);
+        gain.connect(filter);
 
-      osc.start();
-      lfo.start();
+        osc.start();
+        lfo.start();
 
-      return { osc, lfo };
-    });
+        return { osc, lfo };
+      })
+    );
 
     // Faint filtered noise texture, like distant wind — adds warmth under the pad.
     const bufferSize = ctx.sampleRate * 2;
@@ -68,11 +74,11 @@ export function createAmbientSound(): AmbientSound {
 
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = "bandpass";
-    noiseFilter.frequency.value = 500;
+    noiseFilter.frequency.value = 700;
     noiseFilter.Q.value = 0.6;
 
     const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.03;
+    noiseGain.gain.value = 0.05;
 
     noiseSource.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
