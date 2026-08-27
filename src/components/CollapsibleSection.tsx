@@ -7,14 +7,18 @@ export function CollapsibleSection({
   subtitle,
   done,
   total,
+  summary,
   storageKey,
   defaultExpanded = false,
   children,
 }: {
   title: string;
   subtitle?: string;
-  done: number;
-  total: number;
+  /** Если не задан summary — done/total считают строку "N/M выполнено · X%". */
+  done?: number;
+  total?: number;
+  /** Готовая строка для свёрнутого состояния (например, для дневника или статистики). */
+  summary?: string;
   storageKey: string;
   defaultExpanded?: boolean;
   children: React.ReactNode;
@@ -42,7 +46,9 @@ export function CollapsibleSection({
     }
   }
 
-  const percent = total === 0 ? null : Math.round((done / total) * 100);
+  const percent = total === undefined || total === 0 ? null : Math.round(((done ?? 0) / total) * 100);
+  const collapsedText =
+    summary ?? (total === undefined ? "" : percent === null ? "Пока пусто" : `${done}/${total} выполнено · ${percent}%`);
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface p-4">
@@ -52,10 +58,8 @@ export function CollapsibleSection({
       >
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-text">{title}</h2>
-          {!expanded && hydrated && (
-            <p className="mt-0.5 truncate text-xs text-muted">
-              {percent === null ? "Пока пусто" : `${done}/${total} выполнено · ${percent}%`}
-            </p>
+          {!expanded && hydrated && collapsedText && (
+            <p className="mt-0.5 truncate text-xs text-muted">{collapsedText}</p>
           )}
           {expanded && subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
         </div>

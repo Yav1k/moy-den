@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useDayData } from "@/hooks/useDayData";
 import { MotivationCard } from "./MotivationCard";
@@ -9,13 +7,18 @@ import { ThemeToggle } from "./ThemeToggle";
 import { StatsPanel } from "./StatsPanel";
 import { TaskList } from "./TaskList";
 import { HabitList } from "./HabitList";
-import { CalendarModal } from "./CalendarModal";
+import { JournalCard } from "./JournalCard";
+import { StatsCharts } from "./StatsCharts";
+import { CollapsibleSection } from "./CollapsibleSection";
+import { BottomNav } from "./BottomNav";
 import { formatHuman } from "@/lib/date";
+import { moodByKey } from "@/lib/mood";
 
 export function Dashboard({ userId, email }: { userId: string; email: string }) {
   const {
     loading,
     today,
+    logs,
     todayTasks,
     tasksForDate,
     habits,
@@ -31,9 +34,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     deleteHabit,
     reorderHabits,
     toggleHabitToday,
-    toggleHabitOn,
-    getDayStats,
-    hasPlansOn,
+    journal,
     journalForDate,
     moodForDate,
     saveJournal,
@@ -41,83 +42,29 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     stats,
   } = useDayData(userId);
 
-  const [calendarOpen, setCalendarOpen] = useState(false);
-
   async function signOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/login";
   }
 
+  const todayMood = moodByKey(moodForDate(today));
+  const journalSummary = todayMood
+    ? `${todayMood.emoji} ${todayMood.label}`
+    : journalForDate(today).trim()
+      ? "Есть запись за сегодня"
+      : "Нет записи за сегодня";
+
+  const statsSummary = `Сегодня ${stats.todayDone}/${stats.todayTotal} · серия ${stats.streak} 🔥`;
+
   return (
-    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-16 pt-6 sm:px-6">
+    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-28 pt-6 sm:px-6">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Мой день</h1>
           <p className="text-sm text-muted">{formatHuman(today)}</p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Link
-            href="/journal"
-            aria-label="Дневник эмоций"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15Z" />
-            </svg>
-          </Link>
-          <Link
-            href="/goals"
-            aria-label="Цели"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9" />
-              <circle cx="12" cy="12" r="5" />
-              <circle cx="12" cy="12" r="1" fill="currentColor" />
-            </svg>
-          </Link>
-          <Link
-            href="/workout"
-            aria-label="Тренировка"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M6.5 6.5 17.5 17.5M4 8l4-4 2 2-4 4-2-2ZM14 18l4-4 2 2-4 4-2-2ZM2 6l2-2M22 18l-2 2" />
-            </svg>
-          </Link>
-          <Link
-            href="/stats"
-            aria-label="Статистика"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 3v18h18" />
-              <rect x="7" y="13" width="3" height="5" rx="1" fill="currentColor" stroke="none" />
-              <rect x="12" y="9" width="3" height="9" rx="1" fill="currentColor" stroke="none" />
-              <rect x="17" y="5" width="3" height="13" rx="1" fill="currentColor" stroke="none" />
-            </svg>
-          </Link>
-          <button
-            onClick={() => setCalendarOpen(true)}
-            aria-label="Календарь"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <path d="M16 2v4M8 2v4M3 10h18" />
-            </svg>
-          </button>
-          <Link
-            href="/settings"
-            aria-label="Настройки"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-            </svg>
-          </Link>
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
             onClick={signOut}
@@ -158,30 +105,41 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
               onDelete={deleteTask}
               onReorder={reorderTasks}
             />
+
+            <CollapsibleSection
+              title="Дневник эмоций"
+              summary={journalSummary}
+              storageKey="section-journal-expanded"
+            >
+              <JournalCard
+                dateKey={today}
+                content={journalForDate(today)}
+                onSave={saveJournal}
+                mood={moodForDate(today)}
+                onMoodChange={setMood}
+                placeholder="Что чувствовал(а) сегодня? Что на это повлияло..."
+                bare
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection
+              title="Статистика"
+              summary={statsSummary}
+              storageKey="section-stats-expanded"
+            >
+              <StatsCharts
+                today={today}
+                habits={habits}
+                logs={logs}
+                tasksForDate={tasksForDate}
+                journal={journal}
+              />
+            </CollapsibleSection>
           </>
         )}
       </div>
 
-      {calendarOpen && (
-        <CalendarModal
-          today={today}
-          getDayStats={getDayStats}
-          hasPlansOn={hasPlansOn}
-          tasksForDate={tasksForDate}
-          habits={habits}
-          isHabitDoneOn={isHabitDoneOn}
-          journalForDate={journalForDate}
-          onSaveJournal={saveJournal}
-          moodForDate={moodForDate}
-          onMoodChange={setMood}
-          onAddTask={addTask}
-          onToggleTask={toggleTask}
-          onEditTask={editTask}
-          onDeleteTask={deleteTask}
-          onToggleHabit={toggleHabitOn}
-          onClose={() => setCalendarOpen(false)}
-        />
-      )}
+      <BottomNav />
     </main>
   );
 }

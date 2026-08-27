@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useJournalData } from "@/hooks/useJournalData";
 import { JournalCard } from "./JournalCard";
+import { BottomNav } from "./BottomNav";
 import { formatHuman } from "@/lib/date";
 import { moodByKey } from "@/lib/mood";
 
@@ -16,7 +17,7 @@ export function JournalPage({ userId }: { userId: string }) {
     .slice(0, 14);
 
   return (
-    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-16 pt-6 sm:px-6">
+    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-28 pt-6 sm:px-6">
       <header className="flex items-center gap-2">
         <Link
           href="/"
@@ -81,8 +82,10 @@ export function JournalPage({ userId }: { userId: string }) {
       </div>
 
       <p className="mt-3 px-1 text-xs text-muted">
-        Записи за прошлые дни можно дополнить в календаре на главном экране.
+        Записи за прошлые дни можно дополнить в разделе «Календарь».
       </p>
+
+      <BottomNav />
     </main>
   );
 }

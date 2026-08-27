@@ -11,6 +11,7 @@ export function JournalCard({
   onMoodChange,
   title = "Дневник дня",
   placeholder = "Как прошёл день? Что запомнилось...",
+  bare = false,
 }: {
   dateKey: string;
   content: string;
@@ -19,6 +20,8 @@ export function JournalCard({
   onMoodChange?: (dateKey: string, mood: string | null) => void;
   title?: string;
   placeholder?: string;
+  /** Без собственной рамки/заголовка — для встраивания в другую карточку (например, сворачиваемую секцию). */
+  bare?: boolean;
 }) {
   const [value, setValue] = useState(content);
   const [status, setStatus] = useState<"idle" | "pending" | "saved">("idle");
@@ -47,15 +50,22 @@ export function JournalCard({
     };
   }, []);
 
-  return (
-    <section className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-text">{title}</h2>
-        <span className="text-xs text-muted">
-          {status === "pending" && "Сохранение..."}
-          {status === "saved" && "Сохранено"}
-        </span>
-      </div>
+  const body = (
+    <>
+      {!bare && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-text">{title}</h2>
+          <span className="text-xs text-muted">
+            {status === "pending" && "Сохранение..."}
+            {status === "saved" && "Сохранено"}
+          </span>
+        </div>
+      )}
+      {bare && (status === "pending" || status === "saved") && (
+        <p className="mb-1 text-right text-xs text-muted">
+          {status === "pending" ? "Сохранение..." : "Сохранено"}
+        </p>
+      )}
 
       {onMoodChange && (
         <div className="mt-2 flex items-center gap-1.5">
@@ -85,6 +95,10 @@ export function JournalCard({
         rows={4}
         className="mt-2 w-full resize-none rounded-xl border border-border bg-surface2 p-3 text-sm text-text outline-none placeholder:text-muted focus:border-accent"
       />
-    </section>
+    </>
   );
+
+  if (bare) return body;
+
+  return <section className="rounded-2xl border border-border bg-surface p-4">{body}</section>;
 }

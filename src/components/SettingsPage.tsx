@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { NotificationSettings } from "./NotificationSettings";
+import { BottomNav } from "./BottomNav";
 
 export function SettingsPage({ userId, email }: { userId: string; email: string }) {
   return (
-    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-16 pt-6 sm:px-6">
+    <main className="mx-auto min-h-screen max-w-2xl px-4 pb-28 pt-6 sm:px-6">
       <header className="flex items-center gap-2">
         <Link
           href="/"
@@ -25,6 +26,8 @@ export function SettingsPage({ userId, email }: { userId: string; email: string 
       <div className="mt-5 space-y-4">
         <NotificationSettings userId={userId} />
       </div>
+
+      <BottomNav />
     </main>
   );
 }
