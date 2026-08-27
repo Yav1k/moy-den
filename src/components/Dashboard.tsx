@@ -24,10 +24,12 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     toggleTask,
     editTask,
     deleteTask,
+    reorderTasks,
     addHabit,
     editHabit,
     setHabitReminder,
     deleteHabit,
+    reorderHabits,
     toggleHabitToday,
     toggleHabitOn,
     getDayStats,
@@ -146,6 +148,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
               onEdit={editHabit}
               onDelete={deleteHabit}
               onSetReminder={setHabitReminder}
+              onReorder={reorderHabits}
             />
             <TaskList
               tasks={todayTasks}
@@ -153,6 +156,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
               onToggle={toggleTask}
               onEdit={editTask}
               onDelete={deleteTask}
+              onReorder={reorderTasks}
             />
           </>
         )}

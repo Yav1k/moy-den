@@ -136,6 +136,21 @@ export function useDayData(userId: string) {
     [supabase]
   );
 
+  const reorderTasks = useCallback(
+    async (orderedIds: string[]) => {
+      const positionById = new Map(orderedIds.map((id, index) => [id, index]));
+      setTasks((prev) =>
+        prev.map((t) =>
+          positionById.has(t.id) ? { ...t, position: positionById.get(t.id)! } : t
+        )
+      );
+      await Promise.all(
+        orderedIds.map((id, index) => supabase.from("tasks").update({ position: index }).eq("id", id))
+      );
+    },
+    [supabase]
+  );
+
   // --- Привычки (ежедневный чек-лист) ---
 
   const logsByHabitAndDate = useMemo(() => {
@@ -192,6 +207,21 @@ export function useDayData(userId: string) {
     async (id: string) => {
       setHabits((prev) => prev.filter((h) => h.id !== id));
       await supabase.from("habits").update({ archived: true }).eq("id", id);
+    },
+    [supabase]
+  );
+
+  const reorderHabits = useCallback(
+    async (orderedIds: string[]) => {
+      const positionById = new Map(orderedIds.map((id, index) => [id, index]));
+      setHabits((prev) =>
+        [...prev]
+          .map((h) => (positionById.has(h.id) ? { ...h, position: positionById.get(h.id)! } : h))
+          .sort((a, b) => a.position - b.position)
+      );
+      await Promise.all(
+        orderedIds.map((id, index) => supabase.from("habits").update({ position: index }).eq("id", id))
+      );
     },
     [supabase]
   );
@@ -397,10 +427,12 @@ export function useDayData(userId: string) {
     toggleTask,
     editTask,
     deleteTask,
+    reorderTasks,
     addHabit,
     editHabit,
     setHabitReminder,
     deleteHabit,
+    reorderHabits,
     toggleHabitToday,
     toggleHabitOn,
     getDayStats,

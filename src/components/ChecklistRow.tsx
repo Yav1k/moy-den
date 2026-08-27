@@ -10,6 +10,7 @@ export function ChecklistRow({
   onDelete,
   locked = false,
   meta,
+  dragHandleProps,
 }: {
   title: string;
   done: boolean;
@@ -20,6 +21,12 @@ export function ChecklistRow({
   locked?: boolean;
   /** Небольшая метка перед текстом, например время задачи. */
   meta?: string;
+  /** Показывает ручку для перетаскивания и порядка строк. */
+  dragHandleProps?: {
+    onPointerDown: (e: React.PointerEvent) => void;
+    onPointerMove: (e: React.PointerEvent) => void;
+    onPointerUp: (e: React.PointerEvent) => void;
+  };
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
@@ -31,7 +38,26 @@ export function ChecklistRow({
   }
 
   return (
-    <div className="group flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-surface2">
+    <div className="group flex items-center gap-2 rounded-xl px-2 py-2 transition hover:bg-surface2">
+      {dragHandleProps && (
+        <button
+          type="button"
+          aria-label="Изменить порядок"
+          className="shrink-0 touch-none cursor-grab rounded-lg p-1 text-muted active:cursor-grabbing"
+          onPointerDown={dragHandleProps.onPointerDown}
+          onPointerMove={dragHandleProps.onPointerMove}
+          onPointerUp={dragHandleProps.onPointerUp}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="8" cy="6" r="1.5" />
+            <circle cx="16" cy="6" r="1.5" />
+            <circle cx="8" cy="12" r="1.5" />
+            <circle cx="16" cy="12" r="1.5" />
+            <circle cx="8" cy="18" r="1.5" />
+            <circle cx="16" cy="18" r="1.5" />
+          </svg>
+        </button>
+      )}
       <input
         type="checkbox"
         className="task-checkbox"
