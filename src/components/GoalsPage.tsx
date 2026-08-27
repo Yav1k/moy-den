@@ -64,30 +64,32 @@ export function GoalsPage({ userId }: { userId: string }) {
 
             <section className="rounded-2xl border border-dashed border-border bg-surface p-4">
               <h3 className="text-sm font-semibold text-text">Новая цель</h3>
-              <form onSubmit={submit} className="mt-2 flex flex-wrap items-center gap-2">
+              <form onSubmit={submit} className="mt-2 space-y-2">
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Название..."
-                  className="min-w-0 flex-1 rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                  placeholder="Название, например «Прочитать книги»..."
+                  className="w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
                 />
-                <input
-                  type="number"
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  placeholder="Цель"
-                  className="w-20 rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none focus:border-accent"
-                />
-                <input
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  placeholder="ед. (книг, км...)"
-                  className="w-32 rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none focus:border-accent"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={target}
+                    onChange={(e) => setTarget(e.target.value)}
+                    placeholder="Цель"
+                    className="w-20 shrink-0 rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none focus:border-accent"
+                  />
+                  <input
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    placeholder="ед. (книг, км...)"
+                    className="min-w-0 flex-1 rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none focus:border-accent"
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={!title.trim() || !target.trim()}
-                  className="rounded-xl bg-accent px-3 py-2 text-sm font-medium text-accent-fg disabled:opacity-50"
+                  className="w-full rounded-xl bg-accent px-3 py-2 text-sm font-medium text-accent-fg disabled:opacity-50"
                 >
                   Добавить
                 </button>

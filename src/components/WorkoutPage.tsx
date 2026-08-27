@@ -87,28 +87,30 @@ export function WorkoutPage({ userId }: { userId: string }) {
 
             <section className="rounded-2xl border border-dashed border-border bg-surface p-4">
               <h3 className="text-sm font-semibold text-text">Добавить упражнение</h3>
-              <form onSubmit={submitNewExercise} className="mt-2 flex flex-wrap items-center gap-2">
+              <form onSubmit={submitNewExercise} className="mt-2 space-y-2">
                 <input
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Название..."
-                  className="min-w-0 flex-1 rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                  className="w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
                 />
-                <select
-                  value={newKind}
-                  onChange={(e) => setNewKind(e.target.value as ExerciseKind)}
-                  className="rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none"
-                >
-                  <option value="reps">Повторения</option>
-                  <option value="duration">Время</option>
-                </select>
-                <button
-                  type="submit"
-                  disabled={!newTitle.trim()}
-                  className="rounded-xl bg-accent px-3 py-2 text-sm font-medium text-accent-fg disabled:opacity-50"
-                >
-                  Добавить
-                </button>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={newKind}
+                    onChange={(e) => setNewKind(e.target.value as ExerciseKind)}
+                    className="min-w-0 flex-1 rounded-xl border border-border bg-surface2 px-2 py-2 text-sm text-text outline-none"
+                  >
+                    <option value="reps">Повторения</option>
+                    <option value="duration">Время</option>
+                  </select>
+                  <button
+                    type="submit"
+                    disabled={!newTitle.trim()}
+                    className="shrink-0 rounded-xl bg-accent px-3 py-2 text-sm font-medium text-accent-fg disabled:opacity-50"
+                  >
+                    Добавить
+                  </button>
+                </div>
               </form>
             </section>
           </>
