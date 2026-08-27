@@ -22,7 +22,7 @@ export function TimelineRow({
   onDelete,
   isLast = false,
   dragHandleProps,
-  extra,
+  onTimeClick,
 }: {
   icon: React.ReactNode;
   iconFilled: boolean;
@@ -39,7 +39,8 @@ export function TimelineRow({
     onPointerMove: (e: React.PointerEvent) => void;
     onPointerUp: (e: React.PointerEvent) => void;
   };
-  extra?: React.ReactNode;
+  /** Тап по времени/подписи "+ время" — открывает редактор напоминания (только для привычек). */
+  onTimeClick?: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
@@ -66,11 +67,22 @@ export function TimelineRow({
       <div className="min-w-0 flex-1 pb-5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            {time && (
-              <div className="flex items-center gap-1 text-xs text-muted">
-                {time}
-                {recurring && <RepeatIcon />}
-              </div>
+            {recurring ? (
+              <button
+                onClick={onTimeClick}
+                className="flex items-center gap-1 text-xs text-muted hover:text-accent"
+              >
+                {time ? (
+                  <>
+                    {time}
+                    <RepeatIcon />
+                  </>
+                ) : (
+                  "+ время"
+                )}
+              </button>
+            ) : (
+              time && <div className="flex items-center gap-1 text-xs text-muted">{time}</div>
             )}
             {editing ? (
               <input
@@ -100,7 +112,6 @@ export function TimelineRow({
           </div>
 
           <div className="flex shrink-0 items-center gap-1 pt-0.5">
-            {extra}
             {dragHandleProps && (
               <button
                 type="button"

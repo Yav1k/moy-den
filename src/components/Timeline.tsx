@@ -106,18 +106,10 @@ export function Timeline({
               }
               onDelete={() => (isHabit ? onDeleteHabit(habit!.id) : onDeleteTask(task!.id))}
               isLast={anchor.item.id === lastId}
-              extra={
-                isHabit ? (
-                  <button
-                    onClick={() =>
-                      setReminderEditorId(reminderEditorId === habit!.id ? null : habit!.id)
-                    }
-                    aria-label="Напоминание"
-                    className="rounded-lg p-1 text-xs text-accent"
-                  >
-                    ⏰
-                  </button>
-                ) : undefined
+              onTimeClick={
+                isHabit
+                  ? () => setReminderEditorId(reminderEditorId === habit!.id ? null : habit!.id)
+                  : undefined
               }
             />
             {isHabit && reminderEditorId === habit!.id && (
@@ -157,16 +149,8 @@ export function Timeline({
                 onDelete={() => onDeleteHabit(habit.id)}
                 isLast={habit.id === lastId}
                 dragHandleProps={dragHandleProps}
-                extra={
-                  <button
-                    onClick={() =>
-                      setReminderEditorId(reminderEditorId === habit.id ? null : habit.id)
-                    }
-                    aria-label="Напоминание"
-                    className="rounded-lg p-1 text-xs text-muted"
-                  >
-                    ⏰
-                  </button>
+                onTimeClick={() =>
+                  setReminderEditorId(reminderEditorId === habit.id ? null : habit.id)
                 }
               />
               {reminderEditorId === habit.id && (
