@@ -37,6 +37,7 @@ export function Timeline({
   onDeleteTask,
   onReorderTasks,
   onAddTask,
+  isFuture = false,
 }: {
   habits: Habit[];
   isHabitDoneOn: (habitId: string) => boolean;
@@ -52,12 +53,14 @@ export function Timeline({
   onDeleteTask: (id: string) => void;
   onReorderTasks: (orderedIds: string[]) => void;
   onAddTask: (title: string, time: string | null) => void;
+  /** Скрывает привычки — их нельзя отметить заранее (как в календаре). */
+  isFuture?: boolean;
 }) {
   const [reminderEditorId, setReminderEditorId] = useState<string | null>(null);
   const [addSheet, setAddSheet] = useState<"task" | "habit" | null>(null);
 
-  const timedHabits = habits.filter((h) => h.reminder_time);
-  const untimedHabits = habits.filter((h) => !h.reminder_time);
+  const timedHabits = isFuture ? [] : habits.filter((h) => h.reminder_time);
+  const untimedHabits = isFuture ? [] : habits.filter((h) => !h.reminder_time);
   const timedTasks = tasks.filter((t) => t.task_time);
   const untimedTasks = tasks.filter((t) => !t.task_time);
 
@@ -74,7 +77,7 @@ export function Timeline({
   ];
   const lastId = allIdsInOrder[allIdsInOrder.length - 1];
 
-  const isEmpty = habits.length === 0 && tasks.length === 0;
+  const isEmpty = tasks.length === 0 && (isFuture || habits.length === 0);
 
   return (
     <div>
@@ -206,14 +209,16 @@ export function Timeline({
           onClick={() => setAddSheet("task")}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted transition hover:border-accent hover:text-accent"
         >
-          <span className="text-base leading-none">+</span> Задача
+          <span className="text-base leading-none">+</span> {isFuture ? "Дело" : "Задача"}
         </button>
-        <button
-          onClick={() => setAddSheet("habit")}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted transition hover:border-accent hover:text-accent"
-        >
-          <span className="text-base leading-none">+</span> Привычка
-        </button>
+        {!isFuture && (
+          <button
+            onClick={() => setAddSheet("habit")}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted transition hover:border-accent hover:text-accent"
+          >
+            <span className="text-base leading-none">+</span> Привычка
+          </button>
+        )}
       </div>
 
       {addSheet && (

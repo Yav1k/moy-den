@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useDayData } from "@/hooks/useDayData";
 import { MotivationCard } from "./MotivationCard";
@@ -18,7 +19,6 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     loading,
     today,
     logs,
-    todayTasks,
     tasksForDate,
     habits,
     isHabitDoneOn,
@@ -32,7 +32,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     setHabitReminder,
     deleteHabit,
     reorderHabits,
-    toggleHabitToday,
+    toggleHabitOn,
     journal,
     journalForDate,
     moodForDate,
@@ -41,25 +41,31 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     stats,
   } = useDayData(userId);
 
+  const [viewDate, setViewDate] = useState(today);
+  const isFuture = viewDate > today;
+  const isToday = viewDate === today;
+
   async function signOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = "/login";
   }
 
-  const todayMood = moodByKey(moodForDate(today));
-  const journalSummary = todayMood
-    ? `${todayMood.emoji} ${todayMood.label}`
-    : journalForDate(today).trim()
-      ? "Есть запись за сегодня"
-      : "Нет записи за сегодня";
+  const viewMood = moodByKey(moodForDate(viewDate));
+  const journalSummary = viewMood
+    ? `${viewMood.emoji} ${viewMood.label}`
+    : journalForDate(viewDate).trim()
+      ? "Есть запись"
+      : isToday
+        ? "Нет записи за сегодня"
+        : "Нет записи";
 
   const statsSummary = `Сегодня ${stats.todayDone}/${stats.todayTotal} · серия ${stats.streak} 🔥`;
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-4 pb-28 pt-6 sm:px-6">
       <div className="flex items-start justify-between gap-3">
-        <DateHeader today={today} />
+        <DateHeader selectedDate={viewDate} onSelectDate={setViewDate} />
         <div className="flex shrink-0 items-center gap-2 pt-1">
           <ThemeToggle />
           <button
@@ -86,37 +92,40 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
             <section className="rounded-2xl border border-border bg-surface p-4">
               <Timeline
                 habits={habits}
-                isHabitDoneOn={(id) => isHabitDoneOn(id, today)}
-                onToggleHabit={toggleHabitToday}
+                isHabitDoneOn={(id) => isHabitDoneOn(id, viewDate)}
+                onToggleHabit={(id) => toggleHabitOn(id, viewDate)}
                 onEditHabit={editHabit}
                 onDeleteHabit={deleteHabit}
                 onSetHabitReminder={setHabitReminder}
                 onReorderHabits={reorderHabits}
                 onAddHabit={addHabit}
-                tasks={todayTasks}
+                tasks={tasksForDate(viewDate)}
                 onToggleTask={toggleTask}
                 onEditTask={editTask}
                 onDeleteTask={deleteTask}
                 onReorderTasks={reorderTasks}
-                onAddTask={(title, time) => addTask(title, today, time)}
+                onAddTask={(title, time) => addTask(title, viewDate, time)}
+                isFuture={isFuture}
               />
             </section>
 
-            <CollapsibleSection
-              title="Дневник эмоций"
-              summary={journalSummary}
-              storageKey="section-journal-expanded"
-            >
-              <JournalCard
-                dateKey={today}
-                content={journalForDate(today)}
-                onSave={saveJournal}
-                mood={moodForDate(today)}
-                onMoodChange={setMood}
-                placeholder="Что чувствовал(а) сегодня? Что на это повлияло..."
-                bare
-              />
-            </CollapsibleSection>
+            {!isFuture && (
+              <CollapsibleSection
+                title="Дневник эмоций"
+                summary={journalSummary}
+                storageKey="section-journal-expanded"
+              >
+                <JournalCard
+                  dateKey={viewDate}
+                  content={journalForDate(viewDate)}
+                  onSave={saveJournal}
+                  mood={moodForDate(viewDate)}
+                  onMoodChange={setMood}
+                  placeholder="Что чувствовал(а) в этот день? Что на это повлияло..."
+                  bare
+                />
+              </CollapsibleSection>
+            )}
 
             <CollapsibleSection
               title="Статистика"
