@@ -33,6 +33,7 @@ export type JournalEntry = {
   user_id: string;
   entry_date: string; // YYYY-MM-DD
   content: string;
+  mood: string | null;
   updated_at: string;
 };
 
@@ -71,7 +72,29 @@ export type UserSettings = {
   user_id: string;
   daily_reminder_time: string | null; // HH:MM
   daily_reminder_enabled: boolean;
+  weekly_review_enabled: boolean;
+  weekly_review_time: string | null; // HH:MM
   updated_at: string;
+};
+
+export type BodyLog = {
+  id: string;
+  user_id: string;
+  entry_date: string; // YYYY-MM-DD
+  weight_kg: number | null;
+  created_at: string;
+};
+
+export type Goal = {
+  id: string;
+  user_id: string;
+  title: string;
+  unit: string;
+  target_value: number;
+  current_value: number;
+  archived: boolean;
+  position: number;
+  created_at: string;
 };
 
 export type Database = {
@@ -141,6 +164,18 @@ export type Database = {
         Row: UserSettings;
         Insert: Partial<UserSettings> & { user_id: string };
         Update: Partial<UserSettings>;
+        Relationships: [];
+      };
+      body_logs: {
+        Row: BodyLog;
+        Insert: Partial<BodyLog> & { user_id: string; entry_date: string };
+        Update: Partial<BodyLog>;
+        Relationships: [];
+      };
+      goals: {
+        Row: Goal;
+        Insert: Partial<Goal> & { title: string; user_id: string; target_value: number };
+        Update: Partial<Goal>;
         Relationships: [];
       };
     };

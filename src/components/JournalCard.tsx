@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { MOODS } from "@/lib/mood";
 
 export function JournalCard({
   dateKey,
   content,
   onSave,
+  mood = null,
+  onMoodChange,
   title = "Дневник дня",
   placeholder = "Как прошёл день? Что запомнилось...",
 }: {
   dateKey: string;
   content: string;
   onSave: (dateKey: string, content: string) => void;
+  mood?: string | null;
+  onMoodChange?: (dateKey: string, mood: string | null) => void;
   title?: string;
   placeholder?: string;
 }) {
@@ -51,6 +56,28 @@ export function JournalCard({
           {status === "saved" && "Сохранено"}
         </span>
       </div>
+
+      {onMoodChange && (
+        <div className="mt-2 flex items-center gap-1.5">
+          {MOODS.map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              onClick={() => onMoodChange(dateKey, mood === m.key ? null : m.key)}
+              aria-label={m.label}
+              title={m.label}
+              className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition ${
+                mood === m.key
+                  ? "bg-accent/20 ring-2 ring-accent"
+                  : "opacity-50 hover:opacity-100"
+              }`}
+            >
+              {m.emoji}
+            </button>
+          ))}
+        </div>
+      )}
+
       <textarea
         value={value}
         onChange={(e) => handleChange(e.target.value)}

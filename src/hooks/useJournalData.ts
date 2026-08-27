@@ -38,12 +38,22 @@ export function useJournalData(userId: string) {
     [entryByDate]
   );
 
-  const saveJournal = useCallback(
-    async (dateKey: string, content: string) => {
+  const moodForDate = useCallback(
+    (dateKey: string) => entryByDate.get(dateKey)?.mood ?? null,
+    [entryByDate]
+  );
+
+  const upsertEntry = useCallback(
+    async (dateKey: string, patch: { content?: string; mood?: string | null }) => {
+      const existing = entryByDate.get(dateKey);
+      const next = {
+        content: patch.content ?? existing?.content ?? "",
+        mood: "mood" in patch ? patch.mood ?? null : existing?.mood ?? null,
+      };
+
       setEntries((prev) => {
-        const existing = prev.find((e) => e.entry_date === dateKey);
         if (existing) {
-          return prev.map((e) => (e.entry_date === dateKey ? { ...e, content } : e));
+          return prev.map((e) => (e.entry_date === dateKey ? { ...e, ...next } : e));
         }
         return [
           ...prev,
@@ -51,20 +61,38 @@ export function useJournalData(userId: string) {
             id: `optimistic-${dateKey}`,
             user_id: userId,
             entry_date: dateKey,
-            content,
+            content: next.content,
+            mood: next.mood,
             updated_at: new Date().toISOString(),
           },
         ];
       });
+
       await supabase
         .from("journal_entries")
         .upsert(
-          { user_id: userId, entry_date: dateKey, content, updated_at: new Date().toISOString() },
+          {
+            user_id: userId,
+            entry_date: dateKey,
+            content: next.content,
+            mood: next.mood,
+            updated_at: new Date().toISOString(),
+          },
           { onConflict: "user_id,entry_date" }
         );
     },
-    [supabase, userId]
+    [supabase, userId, entryByDate]
   );
 
-  return { loading, today, journalForDate, saveJournal };
+  const saveJournal = useCallback(
+    (dateKey: string, content: string) => upsertEntry(dateKey, { content }),
+    [upsertEntry]
+  );
+
+  const setMood = useCallback(
+    (dateKey: string, mood: string | null) => upsertEntry(dateKey, { mood }),
+    [upsertEntry]
+  );
+
+  return { loading, today, entries, journalForDate, moodForDate, saveJournal, setMood };
 }

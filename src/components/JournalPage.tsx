@@ -4,9 +4,16 @@ import Link from "next/link";
 import { useJournalData } from "@/hooks/useJournalData";
 import { JournalCard } from "./JournalCard";
 import { formatHuman } from "@/lib/date";
+import { moodByKey } from "@/lib/mood";
 
 export function JournalPage({ userId }: { userId: string }) {
-  const { loading, today, journalForDate, saveJournal } = useJournalData(userId);
+  const { loading, today, entries, journalForDate, moodForDate, saveJournal, setMood } =
+    useJournalData(userId);
+
+  const history = entries
+    .filter((e) => e.entry_date !== today && (e.content.trim() || e.mood))
+    .sort((a, b) => (a.entry_date < b.entry_date ? 1 : -1))
+    .slice(0, 14);
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-4 pb-16 pt-6 sm:px-6">
@@ -26,22 +33,55 @@ export function JournalPage({ userId }: { userId: string }) {
         </div>
       </header>
 
-      <div className="mt-5">
+      <div className="mt-5 space-y-4">
         {loading ? (
           <p className="py-10 text-center text-sm text-muted">Загрузка...</p>
         ) : (
-          <JournalCard
-            dateKey={today}
-            content={journalForDate(today)}
-            onSave={saveJournal}
-            title="Сегодня"
-            placeholder="Что чувствовал(а) сегодня? Что на это повлияло..."
-          />
+          <>
+            <JournalCard
+              dateKey={today}
+              content={journalForDate(today)}
+              onSave={saveJournal}
+              mood={moodForDate(today)}
+              onMoodChange={setMood}
+              title="Сегодня"
+              placeholder="Что чувствовал(а) сегодня? Что на это повлияло..."
+            />
+
+            {history.length > 0 && (
+              <section>
+                <p className="px-1 text-xs font-medium uppercase tracking-wide text-muted">
+                  Недавние записи
+                </p>
+                <div className="mt-2 space-y-2">
+                  {history.map((entry) => {
+                    const mood = moodByKey(entry.mood);
+                    return (
+                      <div
+                        key={entry.entry_date}
+                        className="rounded-xl border border-border bg-surface p-3"
+                      >
+                        <div className="flex items-center gap-2 text-xs text-muted">
+                          {mood && <span className="text-base">{mood.emoji}</span>}
+                          <span>{formatHuman(entry.entry_date)}</span>
+                        </div>
+                        {entry.content.trim() && (
+                          <p className="mt-1 line-clamp-2 text-sm text-text">
+                            {entry.content}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </>
         )}
       </div>
 
       <p className="mt-3 px-1 text-xs text-muted">
-        Записи за прошлые дни можно посмотреть и дополнить в календаре на главном экране.
+        Записи за прошлые дни можно дополнить в календаре на главном экране.
       </p>
     </main>
   );

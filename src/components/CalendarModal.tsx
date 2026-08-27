@@ -16,6 +16,8 @@ export function CalendarModal({
   isHabitDoneOn,
   journalForDate,
   onSaveJournal,
+  moodForDate,
+  onMoodChange,
   onAddTask,
   onToggleTask,
   onEditTask,
@@ -31,6 +33,8 @@ export function CalendarModal({
   isHabitDoneOn: (habitId: string, dateKey: string) => boolean;
   journalForDate: (dateKey: string) => string;
   onSaveJournal: (dateKey: string, content: string) => void;
+  moodForDate: (dateKey: string) => string | null;
+  onMoodChange: (dateKey: string, mood: string | null) => void;
   onAddTask: (title: string, dateKey: string, time: string | null) => void;
   onToggleTask: (id: string) => void;
   onEditTask: (id: string, title: string) => void;
@@ -79,6 +83,8 @@ export function CalendarModal({
               isHabitDoneOn={isHabitDoneOn}
               journalContent={journalForDate(selectedDate)}
               onSaveJournal={onSaveJournal}
+              journalMood={moodForDate(selectedDate)}
+              onMoodChange={onMoodChange}
               onAddTask={onAddTask}
               onToggleTask={onToggleTask}
               onEditTask={onEditTask}

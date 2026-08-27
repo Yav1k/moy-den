@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useWorkoutData } from "@/hooks/useWorkoutData";
 import { ExerciseCard } from "./ExerciseCard";
+import { WeightCard } from "./WeightCard";
 import type { ExerciseKind } from "@/lib/supabase/types";
 import { formatHuman } from "@/lib/date";
 
@@ -18,6 +19,9 @@ export function WorkoutPage({ userId }: { userId: string }) {
     deleteSet,
     addExercise,
     deleteExercise,
+    bodyLogs,
+    weightForDate,
+    saveWeight,
   } = useWorkoutData(userId);
 
   const [newTitle, setNewTitle] = useState("");
@@ -53,6 +57,13 @@ export function WorkoutPage({ userId }: { userId: string }) {
           <p className="py-10 text-center text-sm text-muted">Загрузка...</p>
         ) : (
           <>
+            <WeightCard
+              today={today}
+              bodyLogs={bodyLogs}
+              weightForDate={weightForDate}
+              onSave={saveWeight}
+            />
+
             {exercises.map((exercise) => (
               <div key={exercise.id} className="group/exercise relative">
                 <ExerciseCard

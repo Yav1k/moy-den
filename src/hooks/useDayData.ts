@@ -321,12 +321,22 @@ export function useDayData(userId: string) {
     [journalByDate]
   );
 
-  const saveJournal = useCallback(
-    async (dateKey: string, content: string) => {
+  const moodForDate = useCallback(
+    (dateKey: string) => journalByDate.get(dateKey)?.mood ?? null,
+    [journalByDate]
+  );
+
+  const upsertJournalEntry = useCallback(
+    async (dateKey: string, patch: { content?: string; mood?: string | null }) => {
+      const existing = journalByDate.get(dateKey);
+      const next = {
+        content: patch.content ?? existing?.content ?? "",
+        mood: "mood" in patch ? patch.mood ?? null : existing?.mood ?? null,
+      };
+
       setJournal((prev) => {
-        const existing = prev.find((e) => e.entry_date === dateKey);
         if (existing) {
-          return prev.map((e) => (e.entry_date === dateKey ? { ...e, content } : e));
+          return prev.map((e) => (e.entry_date === dateKey ? { ...e, ...next } : e));
         }
         return [
           ...prev,
@@ -334,19 +344,37 @@ export function useDayData(userId: string) {
             id: `optimistic-${dateKey}`,
             user_id: userId,
             entry_date: dateKey,
-            content,
+            content: next.content,
+            mood: next.mood,
             updated_at: new Date().toISOString(),
           },
         ];
       });
+
       await supabase
         .from("journal_entries")
         .upsert(
-          { user_id: userId, entry_date: dateKey, content, updated_at: new Date().toISOString() },
+          {
+            user_id: userId,
+            entry_date: dateKey,
+            content: next.content,
+            mood: next.mood,
+            updated_at: new Date().toISOString(),
+          },
           { onConflict: "user_id,entry_date" }
         );
     },
-    [supabase, userId]
+    [supabase, userId, journalByDate]
+  );
+
+  const saveJournal = useCallback(
+    (dateKey: string, content: string) => upsertJournalEntry(dateKey, { content }),
+    [upsertJournalEntry]
+  );
+
+  const setMood = useCallback(
+    (dateKey: string, mood: string | null) => upsertJournalEntry(dateKey, { mood }),
+    [upsertJournalEntry]
   );
 
   // --- Планы (для точек в календаре на будущих днях) ---
@@ -359,6 +387,8 @@ export function useDayData(userId: string) {
   return {
     loading,
     today,
+    tasks,
+    logs,
     todayTasks,
     tasksForDate,
     habits,
@@ -375,8 +405,11 @@ export function useDayData(userId: string) {
     toggleHabitOn,
     getDayStats,
     hasPlansOn,
+    journal,
     journalForDate,
+    moodForDate,
     saveJournal,
+    setMood,
     stats,
     refresh: loadAll,
   };

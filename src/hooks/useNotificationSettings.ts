@@ -16,6 +16,8 @@ export function useNotificationSettings(userId: string) {
   const [subscribed, setSubscribed] = useState(false);
   const [dailyReminderTime, setDailyReminderTime] = useState<string | null>(null);
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
+  const [weeklyReviewTime, setWeeklyReviewTime] = useState<string | null>(null);
+  const [weeklyReviewEnabled, setWeeklyReviewEnabled] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,6 +31,8 @@ export function useNotificationSettings(userId: string) {
       if (settingsRes.data) {
         setDailyReminderTime(settingsRes.data.daily_reminder_time);
         setDailyReminderEnabled(settingsRes.data.daily_reminder_enabled);
+        setWeeklyReviewTime(settingsRes.data.weekly_review_time);
+        setWeeklyReviewEnabled(settingsRes.data.weekly_review_enabled);
       }
       setSubscribed(Boolean(subscription));
       setLoading(false);
@@ -68,6 +72,23 @@ export function useNotificationSettings(userId: string) {
     [supabase, userId]
   );
 
+  const saveWeeklyReview = useCallback(
+    async (time: string | null, enabled: boolean) => {
+      setWeeklyReviewTime(time);
+      setWeeklyReviewEnabled(enabled);
+      await supabase.from("user_settings").upsert(
+        {
+          user_id: userId,
+          weekly_review_time: time,
+          weekly_review_enabled: enabled,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
+    },
+    [supabase, userId]
+  );
+
   return {
     loading,
     supported: isPushSupported(),
@@ -76,5 +97,8 @@ export function useNotificationSettings(userId: string) {
     dailyReminderTime,
     dailyReminderEnabled,
     saveDailyReminder,
+    weeklyReviewTime,
+    weeklyReviewEnabled,
+    saveWeeklyReview,
   };
 }

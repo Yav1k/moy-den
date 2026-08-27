@@ -33,7 +33,9 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
     getDayStats,
     hasPlansOn,
     journalForDate,
+    moodForDate,
     saveJournal,
+    setMood,
     stats,
   } = useDayData(userId);
 
@@ -63,12 +65,35 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
             </svg>
           </Link>
           <Link
+            href="/goals"
+            aria-label="Цели"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="5" />
+              <circle cx="12" cy="12" r="1" fill="currentColor" />
+            </svg>
+          </Link>
+          <Link
             href="/workout"
             aria-label="Тренировка"
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6.5 6.5 17.5 17.5M4 8l4-4 2 2-4 4-2-2ZM14 18l4-4 2 2-4 4-2-2ZM2 6l2-2M22 18l-2 2" />
+            </svg>
+          </Link>
+          <Link
+            href="/stats"
+            aria-label="Статистика"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition hover:bg-surface2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 3v18h18" />
+              <rect x="7" y="13" width="3" height="5" rx="1" fill="currentColor" stroke="none" />
+              <rect x="12" y="9" width="3" height="9" rx="1" fill="currentColor" stroke="none" />
+              <rect x="17" y="5" width="3" height="13" rx="1" fill="currentColor" stroke="none" />
             </svg>
           </Link>
           <button
@@ -143,6 +168,8 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
           isHabitDoneOn={isHabitDoneOn}
           journalForDate={journalForDate}
           onSaveJournal={saveJournal}
+          moodForDate={moodForDate}
+          onMoodChange={setMood}
           onAddTask={addTask}
           onToggleTask={toggleTask}
           onEditTask={editTask}

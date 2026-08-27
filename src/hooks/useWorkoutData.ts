@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Exercise, ExerciseKind, ExerciseSet } from "@/lib/supabase/types";
+import type { BodyLog, Exercise, ExerciseKind, ExerciseSet } from "@/lib/supabase/types";
 import { todayKey } from "@/lib/date";
 
 const DEFAULT_EXERCISES: { title: string; kind: ExerciseKind }[] = [
@@ -19,9 +19,10 @@ export function useWorkoutData(userId: string) {
   const [loading, setLoading] = useState(true);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [sets, setSets] = useState<ExerciseSet[]>([]);
+  const [bodyLogs, setBodyLogs] = useState<BodyLog[]>([]);
 
   const loadAll = useCallback(async () => {
-    const [exercisesRes, setsRes] = await Promise.all([
+    const [exercisesRes, setsRes, bodyLogsRes] = await Promise.all([
       supabase
         .from("exercises")
         .select("*")
@@ -29,6 +30,7 @@ export function useWorkoutData(userId: string) {
         .order("position", { ascending: true }),
       // Без фильтра по дате — нужен весь список для личных рекордов.
       supabase.from("exercise_sets").select("*"),
+      supabase.from("body_logs").select("*").order("entry_date", { ascending: true }),
     ]);
 
     let currentExercises = exercisesRes.data ?? [];
@@ -51,6 +53,7 @@ export function useWorkoutData(userId: string) {
 
     setExercises(currentExercises);
     if (setsRes.data) setSets(setsRes.data);
+    if (bodyLogsRes.data) setBodyLogs(bodyLogsRes.data);
     setLoading(false);
   }, [supabase, userId]);
 
@@ -125,6 +128,46 @@ export function useWorkoutData(userId: string) {
     [supabase]
   );
 
+  // --- Вес тела ---
+
+  const weightForDate = useCallback(
+    (dateKey: string) => bodyLogs.find((b) => b.entry_date === dateKey)?.weight_kg ?? null,
+    [bodyLogs]
+  );
+
+  const latestWeight = useMemo(() => {
+    const withWeight = bodyLogs.filter((b) => b.weight_kg != null);
+    return withWeight.length === 0 ? null : withWeight[withWeight.length - 1];
+  }, [bodyLogs]);
+
+  const saveWeight = useCallback(
+    async (dateKey: string, weightKg: number | null) => {
+      setBodyLogs((prev) => {
+        const existing = prev.find((b) => b.entry_date === dateKey);
+        if (existing) {
+          return prev.map((b) => (b.entry_date === dateKey ? { ...b, weight_kg: weightKg } : b));
+        }
+        return [
+          ...prev,
+          {
+            id: `optimistic-${dateKey}`,
+            user_id: userId,
+            entry_date: dateKey,
+            weight_kg: weightKg,
+            created_at: new Date().toISOString(),
+          },
+        ].sort((a, b) => (a.entry_date < b.entry_date ? -1 : 1));
+      });
+      await supabase
+        .from("body_logs")
+        .upsert(
+          { user_id: userId, entry_date: dateKey, weight_kg: weightKg },
+          { onConflict: "user_id,entry_date" }
+        );
+    },
+    [supabase, userId]
+  );
+
   return {
     loading,
     today,
@@ -135,5 +178,9 @@ export function useWorkoutData(userId: string) {
     deleteSet,
     addExercise,
     deleteExercise,
+    bodyLogs,
+    weightForDate,
+    latestWeight,
+    saveWeight,
   };
 }

@@ -37,8 +37,30 @@ create table if not exists public.journal_entries (
   user_id uuid not null references auth.users (id) on delete cascade,
   entry_date date not null,
   content text not null default '',
+  mood text,
   updated_at timestamptz not null default now(),
   unique (user_id, entry_date)
+);
+
+create table if not exists public.body_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  entry_date date not null,
+  weight_kg numeric,
+  created_at timestamptz not null default now(),
+  unique (user_id, entry_date)
+);
+
+create table if not exists public.goals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  title text not null,
+  unit text not null default '',
+  target_value numeric not null check (target_value > 0),
+  current_value numeric not null default 0,
+  archived boolean not null default false,
+  position integer not null default 0,
+  created_at timestamptz not null default now()
 );
 
 create table if not exists public.exercises (
@@ -75,6 +97,8 @@ create table if not exists public.user_settings (
   user_id uuid primary key references auth.users (id) on delete cascade,
   daily_reminder_time time,
   daily_reminder_enabled boolean not null default true,
+  weekly_review_enabled boolean not null default true,
+  weekly_review_time time,
   updated_at timestamptz not null default now()
 );
 
@@ -86,6 +110,8 @@ create index if not exists exercises_user_idx on public.exercises (user_id, arch
 create index if not exists exercise_sets_user_exercise_date_idx
   on public.exercise_sets (user_id, exercise_id, entry_date);
 create index if not exists push_subscriptions_user_idx on public.push_subscriptions (user_id);
+create index if not exists body_logs_user_date_idx on public.body_logs (user_id, entry_date);
+create index if not exists goals_user_idx on public.goals (user_id, archived);
 
 -- Row Level Security: каждый пользователь видит и меняет только свои строки.
 
@@ -97,6 +123,8 @@ alter table public.exercises enable row level security;
 alter table public.exercise_sets enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.user_settings enable row level security;
+alter table public.body_logs enable row level security;
+alter table public.goals enable row level security;
 
 create policy "tasks_select_own" on public.tasks for select using (auth.uid() = user_id);
 create policy "tasks_insert_own" on public.tasks for insert with check (auth.uid() = user_id);
@@ -135,3 +163,13 @@ create policy "push_subscriptions_delete_own" on public.push_subscriptions for d
 create policy "user_settings_select_own" on public.user_settings for select using (auth.uid() = user_id);
 create policy "user_settings_insert_own" on public.user_settings for insert with check (auth.uid() = user_id);
 create policy "user_settings_update_own" on public.user_settings for update using (auth.uid() = user_id);
+
+create policy "body_logs_select_own" on public.body_logs for select using (auth.uid() = user_id);
+create policy "body_logs_insert_own" on public.body_logs for insert with check (auth.uid() = user_id);
+create policy "body_logs_update_own" on public.body_logs for update using (auth.uid() = user_id);
+create policy "body_logs_delete_own" on public.body_logs for delete using (auth.uid() = user_id);
+
+create policy "goals_select_own" on public.goals for select using (auth.uid() = user_id);
+create policy "goals_insert_own" on public.goals for insert with check (auth.uid() = user_id);
+create policy "goals_update_own" on public.goals for update using (auth.uid() = user_id);
+create policy "goals_delete_own" on public.goals for delete using (auth.uid() = user_id);

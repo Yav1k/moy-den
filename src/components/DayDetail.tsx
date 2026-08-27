@@ -14,6 +14,8 @@ export function DayDetail({
   isHabitDoneOn,
   journalContent,
   onSaveJournal,
+  journalMood,
+  onMoodChange,
   onAddTask,
   onToggleTask,
   onEditTask,
@@ -28,6 +30,8 @@ export function DayDetail({
   isHabitDoneOn: (habitId: string, dateKey: string) => boolean;
   journalContent: string;
   onSaveJournal: (dateKey: string, content: string) => void;
+  journalMood: string | null;
+  onMoodChange: (dateKey: string, mood: string | null) => void;
   onAddTask: (title: string, dateKey: string, time: string | null) => void;
   onToggleTask: (id: string) => void;
   onEditTask: (id: string, title: string) => void;
@@ -112,6 +116,8 @@ export function DayDetail({
             dateKey={dateKey}
             content={journalContent}
             onSave={onSaveJournal}
+            mood={journalMood}
+            onMoodChange={onMoodChange}
             title="Дневник эмоций"
             placeholder="Что чувствовал(а) в этот день..."
           />
