@@ -67,6 +67,42 @@ export function monthLabel(year: number, month: number): string {
   return `${MONTHS_RU[month]} ${year}`;
 }
 
+const MONTHS_RU_GENITIVE = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+];
+
+/** "27 августа" — для крупного заголовка даты. */
+export function formatBigDate(dateKey: string): { day: number; month: string } {
+  const [, m, d] = dateKey.split("-").map(Number);
+  return { day: d, month: MONTHS_RU_GENITIVE[m - 1] };
+}
+
+/** Понедельник недели, в которую входит dateKey. */
+export function startOfWeek(dateKey: string): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const weekday = (date.getDay() + 6) % 7; // 0=пн..6=вс
+  date.setDate(date.getDate() - weekday);
+  return toDateKey(date);
+}
+
+/** 7 дат недели (пн..вс), в которую входит dateKey. */
+export function weekDates(dateKey: string): string[] {
+  const start = startOfWeek(dateKey);
+  return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+}
+
 /** Матрица дней месяца по неделям (понедельник — первый день), с "хвостами"
  * соседних месяцев для заполнения сетки календаря. */
 export function getMonthMatrix(year: number, month: number): string[][] {

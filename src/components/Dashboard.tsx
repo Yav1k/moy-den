@@ -5,13 +5,12 @@ import { useDayData } from "@/hooks/useDayData";
 import { MotivationCard } from "./MotivationCard";
 import { ThemeToggle } from "./ThemeToggle";
 import { StatsPanel } from "./StatsPanel";
-import { TaskList } from "./TaskList";
-import { HabitList } from "./HabitList";
+import { Timeline } from "./Timeline";
 import { JournalCard } from "./JournalCard";
 import { StatsCharts } from "./StatsCharts";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { BottomNav } from "./BottomNav";
-import { formatHuman } from "@/lib/date";
+import { DateHeader } from "./DateHeader";
 import { moodByKey } from "@/lib/mood";
 
 export function Dashboard({ userId, email }: { userId: string; email: string }) {
@@ -59,12 +58,9 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-4 pb-28 pt-6 sm:px-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Мой день</h1>
-          <p className="text-sm text-muted">{formatHuman(today)}</p>
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-3">
+        <DateHeader today={today} />
+        <div className="flex shrink-0 items-center gap-2 pt-1">
           <ThemeToggle />
           <button
             onClick={signOut}
@@ -77,7 +73,7 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
             </svg>
           </button>
         </div>
-      </header>
+      </div>
 
       <div className="mt-5 space-y-4">
         <MotivationCard />
@@ -87,24 +83,24 @@ export function Dashboard({ userId, email }: { userId: string; email: string }) 
           <p className="py-10 text-center text-sm text-muted">Загрузка...</p>
         ) : (
           <>
-            <HabitList
-              habits={habits}
-              isDoneToday={(id) => isHabitDoneOn(id, today)}
-              onAdd={addHabit}
-              onToggle={toggleHabitToday}
-              onEdit={editHabit}
-              onDelete={deleteHabit}
-              onSetReminder={setHabitReminder}
-              onReorder={reorderHabits}
-            />
-            <TaskList
-              tasks={todayTasks}
-              onAdd={(title, time) => addTask(title, today, time)}
-              onToggle={toggleTask}
-              onEdit={editTask}
-              onDelete={deleteTask}
-              onReorder={reorderTasks}
-            />
+            <section className="rounded-2xl border border-border bg-surface p-4">
+              <Timeline
+                habits={habits}
+                isHabitDoneOn={(id) => isHabitDoneOn(id, today)}
+                onToggleHabit={toggleHabitToday}
+                onEditHabit={editHabit}
+                onDeleteHabit={deleteHabit}
+                onSetHabitReminder={setHabitReminder}
+                onReorderHabits={reorderHabits}
+                onAddHabit={addHabit}
+                tasks={todayTasks}
+                onToggleTask={toggleTask}
+                onEditTask={editTask}
+                onDeleteTask={deleteTask}
+                onReorderTasks={reorderTasks}
+                onAddTask={(title, time) => addTask(title, today, time)}
+              />
+            </section>
 
             <CollapsibleSection
               title="Дневник эмоций"
