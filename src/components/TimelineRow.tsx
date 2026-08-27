@@ -90,7 +90,7 @@ export function TimelineRow({
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className={`mt-0.5 truncate text-left text-[15px] font-medium ${
+                className={`mt-0.5 block w-full break-words text-left text-[15px] font-medium ${
                   done ? "text-muted line-through" : "text-text"
                 }`}
               >
@@ -105,7 +105,7 @@ export function TimelineRow({
               <button
                 type="button"
                 aria-label="Изменить порядок"
-                className="touch-none cursor-grab rounded-lg p-1 text-muted opacity-0 active:cursor-grabbing group-hover:opacity-100"
+                className="touch-none cursor-grab rounded-lg p-1 text-muted/60 transition hover:text-muted active:cursor-grabbing"
                 onPointerDown={dragHandleProps.onPointerDown}
                 onPointerMove={dragHandleProps.onPointerMove}
                 onPointerUp={dragHandleProps.onPointerUp}
@@ -123,7 +123,7 @@ export function TimelineRow({
             <button
               onClick={onDelete}
               aria-label="Удалить"
-              className="rounded-lg p-1 text-muted opacity-0 transition hover:text-red-500 group-hover:opacity-100"
+              className="rounded-lg p-1 text-muted/60 transition hover:text-red-500"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
