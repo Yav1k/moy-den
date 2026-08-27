@@ -43,7 +43,7 @@ const TABS = [
   },
 ];
 
-const MORE_PATHS = ["/journal", "/stats", "/settings"];
+const MORE_PATHS = ["/journal", "/stats", "/settings", "/meditation"];
 
 export function BottomNav() {
   const pathname = usePathname();
