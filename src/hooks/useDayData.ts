@@ -169,13 +169,19 @@ export function useDayData(userId: string) {
   );
 
   const addHabit = useCallback(
-    async (title: string) => {
+    async (title: string, reminderTime: string | null = null) => {
       const trimmed = title.trim();
       if (!trimmed) return;
       const position = habits.length;
       const { data } = await supabase
         .from("habits")
-        .insert({ title: trimmed, user_id: userId, position, archived: false })
+        .insert({
+          title: trimmed,
+          user_id: userId,
+          position,
+          archived: false,
+          reminder_time: reminderTime,
+        })
         .select()
         .single();
       if (data) setHabits((prev) => [...prev, data]);

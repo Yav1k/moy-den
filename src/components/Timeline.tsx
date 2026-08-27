@@ -4,8 +4,7 @@ import { useState } from "react";
 import type { Habit, Task } from "@/lib/supabase/types";
 import { TimelineRow } from "./TimelineRow";
 import { DragList } from "./DragList";
-import { AddTaskInline } from "./AddTaskInline";
-import { AddInline } from "./AddInline";
+import { AddItemSheet } from "./AddItemSheet";
 
 function FlameIcon() {
   return (
@@ -46,7 +45,7 @@ export function Timeline({
   onDeleteHabit: (id: string) => void;
   onSetHabitReminder: (id: string, time: string | null) => void;
   onReorderHabits: (orderedIds: string[]) => void;
-  onAddHabit: (title: string) => void;
+  onAddHabit: (title: string, reminderTime: string | null) => void;
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onEditTask: (id: string, title: string) => void;
@@ -55,6 +54,7 @@ export function Timeline({
   onAddTask: (title: string, time: string | null) => void;
 }) {
   const [reminderEditorId, setReminderEditorId] = useState<string | null>(null);
+  const [addSheet, setAddSheet] = useState<"task" | "habit" | null>(null);
 
   const timedHabits = habits.filter((h) => h.reminder_time);
   const untimedHabits = habits.filter((h) => !h.reminder_time);
@@ -201,10 +201,29 @@ export function Timeline({
         />
       )}
 
-      <div className="ml-[3.25rem] space-y-2">
-        <AddTaskInline placeholder="Новая задача..." onAdd={onAddTask} />
-        <AddInline placeholder="Новая привычка..." onAdd={onAddHabit} />
+      <div className="ml-[3.25rem] flex gap-2">
+        <button
+          onClick={() => setAddSheet("task")}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted transition hover:border-accent hover:text-accent"
+        >
+          <span className="text-base leading-none">+</span> Задача
+        </button>
+        <button
+          onClick={() => setAddSheet("habit")}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted transition hover:border-accent hover:text-accent"
+        >
+          <span className="text-base leading-none">+</span> Привычка
+        </button>
       </div>
+
+      {addSheet && (
+        <AddItemSheet
+          initialType={addSheet}
+          onClose={() => setAddSheet(null)}
+          onCreateTask={onAddTask}
+          onCreateHabit={onAddHabit}
+        />
+      )}
     </div>
   );
 }
