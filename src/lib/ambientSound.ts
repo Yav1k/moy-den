@@ -4,14 +4,66 @@ export type AmbientSound = {
   setMuted: (muted: boolean) => void;
 };
 
-const TARGET_VOLUME = 0.3;
+const TARGET_VOLUME = 0.32;
+const PAD_VOLUME = 0.85;
+
+// Pentatonic-ish note pool (C major pentatonic across two octaves) — any combination sounds consonant,
+// so notes can be picked at random without ever clashing.
+const CHIME_NOTES = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
 
 export function createAmbientSound(): AmbientSound {
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
+  let delayBus: DelayNode | null = null;
   let started = false;
   let oscNodes: { osc: OscillatorNode; lfo: OscillatorNode }[] = [];
   let noiseSource: AudioBufferSourceNode | null = null;
+  let chimeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function scheduleChime() {
+    const wait = 2800 + Math.random() * 4200;
+    chimeTimeout = setTimeout(() => {
+      if (!started || !ctx || !master || !delayBus) return;
+      playChime();
+      scheduleChime();
+    }, wait);
+  }
+
+  function playChime() {
+    if (!ctx || !master || !delayBus) return;
+    const freq = CHIME_NOTES[Math.floor(Math.random() * CHIME_NOTES.length)];
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+
+    // A faint octave-up partial gives the chime a bell-like shimmer instead of a plain tone.
+    const partial = ctx.createOscillator();
+    partial.type = "sine";
+    partial.frequency.value = freq * 2;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+
+    const partialGain = ctx.createGain();
+    partialGain.gain.setValueAtTime(0.0001, now);
+    partialGain.gain.linearRampToValueAtTime(0.06, now + 0.05);
+    partialGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+    osc.connect(gain);
+    partial.connect(partialGain);
+    gain.connect(master);
+    partialGain.connect(master);
+    gain.connect(delayBus);
+
+    osc.start(now);
+    partial.start(now);
+    osc.stop(now + 3.6);
+    partial.stop(now + 2.4);
+  }
 
   function build() {
     const AudioCtor =
@@ -23,13 +75,33 @@ export function createAmbientSound(): AmbientSound {
     master.gain.linearRampToValueAtTime(TARGET_VOLUME, ctx.currentTime + 2.5);
     master.connect(ctx.destination);
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 2600;
-    filter.connect(master);
+    // Simple delay-based reverb bus so chimes have soft trailing space instead of sounding dry/plain.
+    const delay = ctx.createDelay(2.0);
+    delay.delayTime.value = 0.36;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.32;
+    const delayFilter = ctx.createBiquadFilter();
+    delayFilter.type = "lowpass";
+    delayFilter.frequency.value = 2600;
+    const wet = ctx.createGain();
+    wet.gain.value = 0.55;
 
-    // Soft detuned pad — calm sustained triad, slowly breathing in volume.
-    // A base layer plus a quieter octave-up layer so it stays audible on small phone speakers.
+    delay.connect(delayFilter);
+    delayFilter.connect(feedback);
+    feedback.connect(delay);
+    delayFilter.connect(wet);
+    wet.connect(master);
+    delayBus = delay;
+
+    const padFilter = ctx.createBiquadFilter();
+    padFilter.type = "lowpass";
+    padFilter.frequency.value = 2200;
+    const padBus = ctx.createGain();
+    padBus.gain.value = PAD_VOLUME;
+    padFilter.connect(padBus);
+    padBus.connect(master);
+
+    // Soft detuned pad underneath the chimes — calm sustained triad, slowly breathing in volume.
     const layers = [
       { freqs: [130.81, 164.81, 196.0], gain: 0.4 }, // C3, E3, G3
       { freqs: [261.63, 329.63, 392.0], gain: 0.16 }, // C4, E4, G4
@@ -53,7 +125,7 @@ export function createAmbientSound(): AmbientSound {
         lfoGain.connect(gain.gain);
 
         osc.connect(gain);
-        gain.connect(filter);
+        gain.connect(padFilter);
 
         osc.start();
         lfo.start();
@@ -86,6 +158,13 @@ export function createAmbientSound(): AmbientSound {
     noiseSource.start();
 
     ctx.resume();
+    // First chime shortly after start, so the melodic layer is heard right away instead of
+    // waiting on the random schedule.
+    chimeTimeout = setTimeout(() => {
+      if (!started) return;
+      playChime();
+      scheduleChime();
+    }, 900);
   }
 
   return {
@@ -94,14 +173,15 @@ export function createAmbientSound(): AmbientSound {
         ctx?.resume();
         return;
       }
-      build();
       started = true;
+      build();
     },
     stop() {
-      if (!ctx || !master) {
-        started = false;
-        return;
-      }
+      started = false;
+      if (chimeTimeout) clearTimeout(chimeTimeout);
+      chimeTimeout = null;
+
+      if (!ctx || !master) return;
       const activeCtx = ctx;
       const activeMaster = master;
       const activeOscNodes = oscNodes;
@@ -122,9 +202,9 @@ export function createAmbientSound(): AmbientSound {
 
       ctx = null;
       master = null;
+      delayBus = null;
       oscNodes = [];
       noiseSource = null;
-      started = false;
     },
     setMuted(muted: boolean) {
       if (!ctx || !master) return;
