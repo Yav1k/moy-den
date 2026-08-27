@@ -45,7 +45,7 @@ export function CollapsibleSection({
   const percent = total === 0 ? null : Math.round((done / total) * 100);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface p-4">
+    <section className="overflow-hidden rounded-2xl border border-border bg-surface p-4">
       <button
         onClick={toggle}
         className="flex w-full items-center justify-between gap-3 text-left"
