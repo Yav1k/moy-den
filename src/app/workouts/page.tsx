@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { MeditationPage } from "@/components/MeditationPage";
+import { WorkoutsPage } from "@/components/WorkoutsPage";
 
-export default async function Meditation() {
+export default async function Workouts() {
   const supabase = createClient();
   const {
     data: { user },
@@ -10,5 +10,5 @@ export default async function Meditation() {
 
   if (!user) redirect("/login");
 
-  return <MeditationPage />;
+  return <WorkoutsPage userId={user.id} />;
 }

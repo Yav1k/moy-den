@@ -1,7 +1,13 @@
 # Мой день
 
-Персональный трекер ежедневных задач и привычек с мотивацией дня.
-Next.js (App Router) + TypeScript + Tailwind CSS + Supabase, PWA.
+Персональный трекер: напоминания, рацион, домашние тренировки, трекер
+«без сахара» и вес. Next.js (App Router) + TypeScript + Tailwind CSS +
+Supabase, PWA.
+
+Меню/рецепты — [`src/data/menu.ts`](src/data/menu.ts) и
+[`src/data/nutritionBase.ts`](src/data/nutritionBase.ts). Программа
+тренировок — [`src/data/workoutProgram.ts`](src/data/workoutProgram.ts).
+Правьте эти файлы напрямую, КБЖУ и расписание пересчитаются сами.
 
 Полная инструкция по установке и деплою — в чате с Claude Code, здесь
 только краткая шпаргалка команд.

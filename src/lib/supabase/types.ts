@@ -1,3 +1,5 @@
+// --- Напоминания (задачи + привычки) ---
+
 export type Task = {
   id: string;
   user_id: string;
@@ -28,6 +30,8 @@ export type HabitLog = {
   created_at: string;
 };
 
+// --- Ежедневник ---
+
 export type JournalEntry = {
   id: string;
   user_id: string;
@@ -37,27 +41,73 @@ export type JournalEntry = {
   updated_at: string;
 };
 
-export type ExerciseKind = "reps" | "duration";
+// --- Вес ---
 
-export type Exercise = {
+export type BodyLog = {
   id: string;
   user_id: string;
-  title: string;
-  kind: ExerciseKind;
-  position: number;
-  archived: boolean;
-  created_at: string;
-};
-
-export type ExerciseSet = {
-  id: string;
-  user_id: string;
-  exercise_id: string;
   entry_date: string; // YYYY-MM-DD
-  value: number; // повторения (reps) или секунды (duration)
-  position: number;
+  weight_kg: number | null;
   created_at: string;
 };
+
+// --- Рацион ---
+
+export type MealSlotDb = "breakfast" | "lunch" | "snack" | "dinner" | "sweet";
+export type MealStatus = "pending" | "eaten" | "half" | "skipped";
+
+export type MealLog = {
+  id: string;
+  user_id: string;
+  log_date: string; // YYYY-MM-DD
+  meal_slot: MealSlotDb;
+  status: MealStatus;
+  recipe_id: string | null; // переопределение после «Заменить»
+  created_at: string;
+  updated_at: string;
+};
+
+// --- Трекер «Без сахара» ---
+
+export type SugarFreeDay = {
+  id: string;
+  user_id: string;
+  log_date: string; // YYYY-MM-DD
+  soda: boolean;
+  sweets_over_limit: boolean;
+  fastfood: boolean;
+  alcohol: boolean;
+  updated_at: string;
+};
+
+// --- Тренировки ---
+
+export type WorkoutDayType = "upper" | "lower";
+
+export type WorkoutSession = {
+  id: string;
+  user_id: string;
+  session_date: string; // YYYY-MM-DD
+  day_type: WorkoutDayType;
+  started_at: string;
+  completed_at: string | null;
+  duration_seconds: number | null;
+  total_tonnage: number | null;
+  created_at: string;
+};
+
+export type WorkoutSet = {
+  id: string;
+  user_id: string;
+  session_id: string;
+  exercise_id: string;
+  set_index: number;
+  weight_kg: number | null;
+  reps: number | null;
+  created_at: string;
+};
+
+// --- Push-уведомления и настройки ---
 
 export type PushSubscriptionRow = {
   id: string;
@@ -72,29 +122,7 @@ export type UserSettings = {
   user_id: string;
   daily_reminder_time: string | null; // HH:MM
   daily_reminder_enabled: boolean;
-  weekly_review_enabled: boolean;
-  weekly_review_time: string | null; // HH:MM
   updated_at: string;
-};
-
-export type BodyLog = {
-  id: string;
-  user_id: string;
-  entry_date: string; // YYYY-MM-DD
-  weight_kg: number | null;
-  created_at: string;
-};
-
-export type Goal = {
-  id: string;
-  user_id: string;
-  title: string;
-  unit: string;
-  target_value: number;
-  current_value: number;
-  archived: boolean;
-  position: number;
-  created_at: string;
 };
 
 export type Database = {
@@ -132,21 +160,34 @@ export type Database = {
         Update: Partial<JournalEntry>;
         Relationships: [];
       };
-      exercises: {
-        Row: Exercise;
-        Insert: Partial<Exercise> & { title: string; user_id: string; kind: ExerciseKind };
-        Update: Partial<Exercise>;
+      body_logs: {
+        Row: BodyLog;
+        Insert: Partial<BodyLog> & { user_id: string; entry_date: string };
+        Update: Partial<BodyLog>;
         Relationships: [];
       };
-      exercise_sets: {
-        Row: ExerciseSet;
-        Insert: Partial<ExerciseSet> & {
-          user_id: string;
-          exercise_id: string;
-          entry_date: string;
-          value: number;
-        };
-        Update: Partial<ExerciseSet>;
+      meal_logs: {
+        Row: MealLog;
+        Insert: Partial<MealLog> & { user_id: string; log_date: string; meal_slot: MealSlotDb };
+        Update: Partial<MealLog>;
+        Relationships: [];
+      };
+      sugar_free_days: {
+        Row: SugarFreeDay;
+        Insert: Partial<SugarFreeDay> & { user_id: string; log_date: string };
+        Update: Partial<SugarFreeDay>;
+        Relationships: [];
+      };
+      workout_sessions: {
+        Row: WorkoutSession;
+        Insert: Partial<WorkoutSession> & { user_id: string; session_date: string; day_type: WorkoutDayType };
+        Update: Partial<WorkoutSession>;
+        Relationships: [];
+      };
+      workout_sets: {
+        Row: WorkoutSet;
+        Insert: Partial<WorkoutSet> & { user_id: string; session_id: string; exercise_id: string; set_index: number };
+        Update: Partial<WorkoutSet>;
         Relationships: [];
       };
       push_subscriptions: {
@@ -164,18 +205,6 @@ export type Database = {
         Row: UserSettings;
         Insert: Partial<UserSettings> & { user_id: string };
         Update: Partial<UserSettings>;
-        Relationships: [];
-      };
-      body_logs: {
-        Row: BodyLog;
-        Insert: Partial<BodyLog> & { user_id: string; entry_date: string };
-        Update: Partial<BodyLog>;
-        Relationships: [];
-      };
-      goals: {
-        Row: Goal;
-        Insert: Partial<Goal> & { title: string; user_id: string; target_value: number };
-        Update: Partial<Goal>;
         Relationships: [];
       };
     };

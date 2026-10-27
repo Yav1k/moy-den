@@ -4,7 +4,7 @@ import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
   title: "Мой день",
-  description: "Трекер ежедневных задач и привычек с мотивацией дня",
+  description: "Напоминания, рацион, тренировки, трекер «без сахара» и вес",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

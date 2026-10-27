@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { StatsPage } from "@/components/StatsPage";
+import { SugarTrackerPage } from "@/components/SugarTrackerPage";
 
-export default async function Stats() {
+export default async function Sugar() {
   const supabase = createClient();
   const {
     data: { user },
@@ -10,5 +10,5 @@ export default async function Stats() {
 
   if (!user) redirect("/login");
 
-  return <StatsPage userId={user.id} />;
+  return <SugarTrackerPage userId={user.id} />;
 }

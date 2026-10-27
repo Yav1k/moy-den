@@ -12,9 +12,6 @@ export function NotificationSettings({ userId }: { userId: string }) {
     dailyReminderTime,
     dailyReminderEnabled,
     saveDailyReminder,
-    weeklyReviewTime,
-    weeklyReviewEnabled,
-    saveWeeklyReview,
   } = useNotificationSettings(userId);
 
   const [pending, setPending] = useState(false);
@@ -75,26 +72,6 @@ export function NotificationSettings({ userId }: { userId: string }) {
                 type="time"
                 value={dailyReminderTime ?? ""}
                 onChange={(e) => saveDailyReminder(e.target.value || null, true)}
-                className="mt-2 w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
-              />
-            )}
-          </div>
-
-          <div className="mt-3 border-t border-border pt-3">
-            <label className="flex items-center justify-between gap-3 text-sm text-text">
-              <span>Итоги недели по воскресеньям</span>
-              <input
-                type="checkbox"
-                className="task-checkbox"
-                checked={weeklyReviewEnabled}
-                onChange={(e) => saveWeeklyReview(weeklyReviewTime, e.target.checked)}
-              />
-            </label>
-            {weeklyReviewEnabled && (
-              <input
-                type="time"
-                value={weeklyReviewTime ?? ""}
-                onChange={(e) => saveWeeklyReview(e.target.value || null, true)}
                 className="mt-2 w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
               />
             )}
