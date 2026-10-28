@@ -141,7 +141,7 @@ export function TodayPage({ userId, email }: { userId: string; email: string }) 
           <section className="rounded-2xl border border-border bg-surface p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-text">Рацион</h2>
-              <Link href="/nutrition" className="text-xs text-accent hover:underline">
+              <Link href="/nutrition" className="text-xs text-primary hover:underline">
                 Рецепты →
               </Link>
             </div>
@@ -173,7 +173,7 @@ export function TodayPage({ userId, email }: { userId: string; email: string }) 
           <section className="rounded-2xl border border-border bg-surface p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-text">Без сахара</h2>
-              <Link href="/sugar" className="text-xs text-accent hover:underline">
+              <Link href="/sugar" className="text-xs text-primary hover:underline">
                 Серия: {streak} {streak === 1 ? "день" : "дней"} →
               </Link>
             </div>
@@ -183,7 +183,7 @@ export function TodayPage({ userId, email }: { userId: string; email: string }) 
                   key={flag}
                   onClick={() => toggleFlag(today, flag)}
                   className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                    flags[flag] ? "border-red-500/40 bg-red-500/10 text-red-500" : "border-border text-muted hover:bg-surface2"
+                    flags[flag] ? "border-danger/40 bg-danger/10 text-danger" : "border-border text-muted hover:bg-surface2"
                   }`}
                 >
                   {SUGAR_FLAG_LABELS[flag]}
@@ -208,13 +208,13 @@ export function TodayPage({ userId, email }: { userId: string; email: string }) 
                 onBlur={commitWeight}
                 onKeyDown={(e) => e.key === "Enter" && commitWeight()}
                 placeholder="кг"
-                className="w-28 rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                className="w-28 rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-primary"
               />
               {latest && latest.entry_date !== today && (
                 <span className="text-xs text-muted">Прошлая запись: {latest.weight_kg} кг</span>
               )}
             </div>
-            {hint && <p className="mt-2 text-xs text-accent">{hint.text}</p>}
+            {hint && <p className="mt-2 text-xs text-warning">{hint.text}</p>}
           </section>
         </div>
       )}

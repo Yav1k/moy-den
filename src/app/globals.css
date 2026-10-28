@@ -2,26 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Палитра «Мой день»: бордовый (primary) — главный цвет, тёплый кремовый —
+   фон, золото (accent) — только для достижений/серий, приглушённый шалфей
+   (success) — для «выполнено», терракотовый (danger) — для нарушений/удаления.
+   Все цвета — только здесь; в компонентах используются только токены. */
+
 :root {
-  --color-bg: 248 250 252;
+  --color-bg: 250 246 243;
   --color-surface: 255 255 255;
-  --color-surface2: 241 245 249;
-  --color-border: 226 232 240;
-  --color-text: 15 23 42;
-  --color-muted: 100 116 139;
-  --color-accent: 79 70 229;
-  --color-accent-fg: 255 255 255;
+  --color-surface2: 243 236 232;
+  --color-border: 230 218 212;
+  --color-text: 42 26 30;
+  --color-muted: 122 106 110;
+
+  --color-primary: 122 31 53;
+  --color-primary-hover: 94 22 40;
+  --color-primary-soft: 242 225 229;
+
+  --color-accent: 196 154 90;
+  --color-success: 79 111 75;
+  --color-success-soft: 230 238 227;
+  --color-warning: 147 99 34;
+  --color-danger: 168 64 45;
+
+  /* Текст/иконки поверх сплошной заливки primary/success/warning/danger —
+     в светлой теме эти цвета тёмные (нужен белый), в тёмной — светлые
+     (нужен почти чёрный). Проверено по WCAG для всех четырёх цветов. */
+  --color-on-fill: 255 255 255;
 }
 
 .dark {
-  --color-bg: 10 12 18;
-  --color-surface: 22 25 34;
-  --color-surface2: 30 34 46;
-  --color-border: 45 50 64;
-  --color-text: 236 239 244;
-  --color-muted: 148 158 176;
-  --color-accent: 129 140 248;
-  --color-accent-fg: 17 19 26;
+  --color-bg: 22 16 18;
+  --color-surface: 33 23 25;
+  --color-surface2: 43 30 33;
+  --color-border: 58 42 46;
+  --color-text: 243 233 230;
+  --color-muted: 168 150 154;
+
+  --color-primary: 204 93 116;
+  --color-primary-hover: 220 115 137;
+  --color-primary-soft: 58 28 36;
+
+  --color-accent: 216 178 122;
+  --color-success: 143 176 138;
+  --color-success-soft: 38 48 42;
+  --color-warning: 224 165 79;
+  --color-danger: 232 115 94;
+
+  --color-on-fill: 22 16 18;
 }
 
 * {
@@ -58,12 +86,19 @@ input[type="checkbox"].task-checkbox {
 }
 
 input[type="checkbox"].task-checkbox:checked {
-  background-color: rgb(var(--color-accent));
-  border-color: rgb(var(--color-accent));
+  background-color: rgb(var(--color-success));
+  border-color: rgb(var(--color-success));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 65%;
+}
+
+/* В тёмной теме --color-success светлее фона — белая галочка теряет контраст,
+   так что на checked-фоне рисуем её тёмным штрихом (проходит WCAG non-text 3:1,
+   белая версия — не проходит). */
+.dark input[type="checkbox"].task-checkbox:checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23161012' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 ::-webkit-scrollbar {

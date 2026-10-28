@@ -41,7 +41,7 @@ export function NotificationSettings({ userId }: { userId: string }) {
           className={`shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 ${
             subscribed
               ? "border border-border bg-surface2 text-text hover:bg-border"
-              : "bg-accent text-accent-fg"
+              : "bg-primary text-on-fill"
           }`}
         >
           {subscribed ? "Выключить" : "Включить"}
@@ -49,7 +49,7 @@ export function NotificationSettings({ userId }: { userId: string }) {
       </div>
 
       {denied && (
-        <p className="mt-2 text-xs text-red-500">
+        <p className="mt-2 text-xs text-danger">
           Разрешение на уведомления не выдано. Проверьте настройки браузера/устройства для
           этого сайта.
         </p>
@@ -72,7 +72,7 @@ export function NotificationSettings({ userId }: { userId: string }) {
                 type="time"
                 value={dailyReminderTime ?? ""}
                 onChange={(e) => saveDailyReminder(e.target.value || null, true)}
-                className="mt-2 w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-accent"
+                className="mt-2 w-full rounded-xl border border-border bg-surface2 px-3 py-2 text-sm text-text outline-none focus:border-primary"
               />
             )}
           </div>

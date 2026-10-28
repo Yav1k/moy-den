@@ -31,7 +31,7 @@ export function RestTimer({ seconds, onDone }: { seconds: number; onDone?: () =>
   const c = 2 * Math.PI * r;
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2">
+    <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2">
       <svg width="32" height="32" viewBox="0 0 32 32" className="-rotate-90 shrink-0">
         <circle cx="16" cy="16" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-border" />
         <circle
@@ -44,18 +44,18 @@ export function RestTimer({ seconds, onDone }: { seconds: number; onDone?: () =>
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - progress)}
-          className="text-accent"
+          className="text-primary"
           style={{ transition: "stroke-dashoffset 0.9s linear" }}
         />
       </svg>
-      <span className="text-sm font-medium text-accent">Отдых: {remaining} с</span>
+      <span className="text-sm font-medium text-primary">Отдых: {remaining} с</span>
       <button
         onClick={() => {
           if (intervalRef.current) clearInterval(intervalRef.current);
           setRemaining(0);
           doneRef.current?.();
         }}
-        className="ml-auto text-xs text-muted hover:text-accent"
+        className="ml-auto text-xs text-muted hover:text-primary"
       >
         Пропустить
       </button>

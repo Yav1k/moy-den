@@ -35,7 +35,7 @@ export function CalendarView({
     const base =
       "relative aspect-square rounded-lg text-sm flex items-center justify-center transition cursor-pointer";
     const opacity = inMonth ? "" : "opacity-30";
-    const ring = isToday ? "ring-2 ring-accent" : "";
+    const ring = isToday ? "ring-2 ring-primary" : "";
 
     if (isFuture) {
       return `${base} ${opacity} ${ring} bg-surface2 text-text hover:bg-border`;
@@ -44,10 +44,10 @@ export function CalendarView({
       return `${base} ${opacity} ${ring} bg-surface2 text-text hover:bg-border`;
     }
     if (ratio >= 1) {
-      return `${base} ${opacity} ${ring} bg-accent text-accent-fg font-medium`;
+      return `${base} ${opacity} ${ring} bg-success text-on-fill font-medium`;
     }
     if (ratio > 0) {
-      return `${base} ${opacity} ${ring} bg-accent/40 text-text`;
+      return `${base} ${opacity} ${ring} bg-success/40 text-text`;
     }
     return `${base} ${opacity} ${ring} bg-surface2 text-muted`;
   }
@@ -64,7 +64,7 @@ export function CalendarView({
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <button onClick={onToday} className="text-sm font-medium text-text hover:text-accent">
+        <button onClick={onToday} className="text-sm font-medium text-text hover:text-primary">
           {monthLabel(year, month)}
         </button>
         <button
@@ -95,7 +95,7 @@ export function CalendarView({
             >
               {Number(dateKey.slice(8, 10))}
               {isFuture && hasPlansOn(dateKey) && (
-                <span className="absolute bottom-1 h-1.5 w-1.5 rounded-full bg-accent" />
+                <span className="absolute bottom-1 h-1.5 w-1.5 rounded-full bg-primary" />
               )}
             </button>
           );

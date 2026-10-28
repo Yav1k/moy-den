@@ -62,13 +62,13 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-xl border border-border bg-surface2 px-4 py-2.5 text-text outline-none ring-accent/40 focus:ring-2"
+              className="w-full rounded-xl border border-border bg-surface2 px-4 py-2.5 text-text outline-none ring-primary/40 focus:ring-2"
             />
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-danger">{error}</p>}
             <button
               type="submit"
               disabled={status === "sending"}
-              className="w-full rounded-xl bg-accent px-4 py-2.5 font-medium text-accent-fg transition disabled:opacity-60"
+              className="w-full rounded-xl bg-primary px-4 py-2.5 font-medium text-on-fill transition disabled:opacity-60"
             >
               {status === "sending" ? "Отправляем..." : "Получить ссылку для входа"}
             </button>

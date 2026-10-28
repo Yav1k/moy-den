@@ -78,7 +78,7 @@ export function JournalCard({
               title={m.label}
               className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition ${
                 mood === m.key
-                  ? "bg-accent/20 ring-2 ring-accent"
+                  ? "bg-primary/20 ring-2 ring-primary"
                   : "opacity-50 hover:opacity-100"
               }`}
             >
@@ -93,7 +93,7 @@ export function JournalCard({
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
         rows={4}
-        className="mt-2 w-full resize-none rounded-xl border border-border bg-surface2 p-3 text-sm text-text outline-none placeholder:text-muted focus:border-accent"
+        className="mt-2 w-full resize-none rounded-xl border border-border bg-surface2 p-3 text-sm text-text outline-none placeholder:text-muted focus:border-primary"
       />
     </>
   );

@@ -82,28 +82,32 @@ export function NutritionPage({ userId }: { userId: string }) {
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {(["pending", "half", "eaten"] as MealStatus[]).map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setStatus(slot, s)}
-                      className={`rounded-full border px-3 py-1 text-xs transition ${
-                        status === s ? "border-accent bg-accent/10 text-accent" : "border-border text-muted hover:bg-surface2"
-                      }`}
-                    >
-                      {STATUS_LABELS[s]}
-                    </button>
-                  ))}
+                  {(["pending", "half", "eaten"] as MealStatus[]).map((s) => {
+                    const active = status === s;
+                    const activeClasses = s === "pending" ? "border-primary bg-primary/10 text-primary" : "border-success bg-success/10 text-success";
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setStatus(slot, s)}
+                        className={`rounded-full border px-3 py-1 text-xs transition ${
+                          active ? activeClasses : "border-border text-muted hover:bg-surface2"
+                        }`}
+                      >
+                        {STATUS_LABELS[s]}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="mt-3 flex flex-wrap gap-3 text-xs">
-                  <button onClick={() => setOpenRecipe(openRecipe === slot ? null : slot)} className="font-medium text-accent hover:underline">
+                  <button onClick={() => setOpenRecipe(openRecipe === slot ? null : slot)} className="font-medium text-primary hover:underline">
                     Рецепт {openRecipe === slot ? "▲" : "▼"}
                   </button>
-                  <button onClick={() => setSwapOpen(swapOpen === slot ? null : slot)} className="font-medium text-muted hover:text-accent">
+                  <button onClick={() => setSwapOpen(swapOpen === slot ? null : slot)} className="font-medium text-muted hover:text-primary">
                     Заменить
                   </button>
                   {!isDefault && (
-                    <button onClick={() => resetToDefault(slot)} className="text-muted hover:text-accent">
+                    <button onClick={() => resetToDefault(slot)} className="text-muted hover:text-primary">
                       Вернуть по умолчанию
                     </button>
                   )}

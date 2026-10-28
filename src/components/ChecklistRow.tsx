@@ -87,7 +87,7 @@ export function ChecklistRow({
             done ? "text-muted line-through" : "text-text"
           }`}
         >
-          {meta && <span className="mr-1.5 text-xs font-medium text-accent">{meta}</span>}
+          {meta && <span className="mr-1.5 text-xs font-medium text-primary">{meta}</span>}
           {title}
         </span>
       ) : (
@@ -97,7 +97,7 @@ export function ChecklistRow({
             done ? "text-muted line-through" : "text-text"
           }`}
         >
-          {meta && <span className="mr-1.5 text-xs font-medium text-accent">{meta}</span>}
+          {meta && <span className="mr-1.5 text-xs font-medium text-primary">{meta}</span>}
           {title}
         </button>
       )}
@@ -106,7 +106,7 @@ export function ChecklistRow({
         <button
           onClick={onDelete}
           aria-label="Удалить"
-          className="shrink-0 rounded-lg p-1 text-muted opacity-0 transition hover:bg-surface hover:text-red-500 group-hover:opacity-100"
+          className="shrink-0 rounded-lg p-1 text-muted opacity-0 transition hover:bg-surface hover:text-danger group-hover:opacity-100"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />

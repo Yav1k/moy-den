@@ -26,7 +26,7 @@ export function AddTaskInline({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-dashed border-border bg-transparent px-3 py-2 text-sm text-text outline-none placeholder:text-muted focus:border-accent"
+        className="w-full rounded-xl border border-dashed border-border bg-transparent px-3 py-2 text-sm text-text outline-none placeholder:text-muted focus:border-primary"
       />
       <div className="flex items-center gap-2">
         <input
@@ -34,11 +34,11 @@ export function AddTaskInline({
           value={time}
           onChange={(e) => setTime(e.target.value)}
           aria-label="Время (необязательно)"
-          className="min-w-0 flex-1 rounded-xl border border-dashed border-border bg-transparent px-2 py-2 text-sm text-text outline-none focus:border-accent"
+          className="min-w-0 flex-1 rounded-xl border border-dashed border-border bg-transparent px-2 py-2 text-sm text-text outline-none focus:border-primary"
         />
         <button
           type="submit"
-          className="shrink-0 rounded-xl bg-accent px-3 py-2 text-sm font-medium text-accent-fg disabled:opacity-50"
+          className="shrink-0 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-on-fill disabled:opacity-50"
           disabled={!value.trim()}
         >
           Добавить

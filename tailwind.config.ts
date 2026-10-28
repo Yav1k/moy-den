@@ -16,8 +16,17 @@ const config: Config = {
         border: "rgb(var(--color-border) / <alpha-value>)",
         text: "rgb(var(--color-text) / <alpha-value>)",
         muted: "rgb(var(--color-muted) / <alpha-value>)",
+
+        primary: "rgb(var(--color-primary) / <alpha-value>)",
+        "primary-hover": "rgb(var(--color-primary-hover) / <alpha-value>)",
+        "primary-soft": "rgb(var(--color-primary-soft) / <alpha-value>)",
+        "on-fill": "rgb(var(--color-on-fill) / <alpha-value>)",
+
         accent: "rgb(var(--color-accent) / <alpha-value>)",
-        "accent-fg": "rgb(var(--color-accent-fg) / <alpha-value>)",
+        success: "rgb(var(--color-success) / <alpha-value>)",
+        "success-soft": "rgb(var(--color-success-soft) / <alpha-value>)",
+        warning: "rgb(var(--color-warning) / <alpha-value>)",
+        danger: "rgb(var(--color-danger) / <alpha-value>)",
       },
     },
   },

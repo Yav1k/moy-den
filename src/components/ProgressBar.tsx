@@ -5,13 +5,13 @@ export function ProgressBar({ label, value, target, unit }: { label: string; val
     <div>
       <div className="flex items-baseline justify-between text-xs">
         <span className="text-muted">{label}</span>
-        <span className={over ? "text-red-500" : "text-text"}>
+        <span className={over ? "text-danger" : "text-text"}>
           {Math.round(value)} / {target} {unit}
         </span>
       </div>
       <div className="mt-1 h-2 rounded-full bg-surface2">
         <div
-          className={`h-2 rounded-full transition-all ${over ? "bg-red-500" : "bg-accent"}`}
+          className={`h-2 rounded-full transition-all ${over ? "bg-danger" : "bg-primary"}`}
           style={{ width: `${ratio * 100}%` }}
         />
       </div>

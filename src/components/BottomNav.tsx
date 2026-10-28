@@ -56,7 +56,7 @@ export function BottomNav() {
               key={tab.href}
               href={tab.href}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] ${
-                active ? "text-accent" : "text-muted"
+                active ? "text-primary" : "text-muted"
               }`}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

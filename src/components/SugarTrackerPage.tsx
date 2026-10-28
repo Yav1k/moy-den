@@ -22,9 +22,9 @@ export function SugarTrackerPage({ userId }: { userId: string }) {
     const isFuture = dateKey > today;
     const base = "relative aspect-square rounded-lg text-sm flex items-center justify-center transition";
     const opacity = inMonth ? "" : "opacity-30";
-    const ring = isToday ? "ring-2 ring-accent" : "";
+    const ring = isToday ? "ring-2 ring-primary" : "";
     if (isFuture) return `${base} ${opacity} ${ring} bg-surface2 text-muted`;
-    return `${base} ${opacity} ${ring} ${isCleanOn(dateKey) ? "bg-accent/30 text-text" : "bg-red-500/30 text-text"}`;
+    return `${base} ${opacity} ${ring} ${isCleanOn(dateKey) ? "bg-success/30 text-text" : "bg-danger/30 text-text"}`;
   }
 
   return (
@@ -49,11 +49,15 @@ export function SugarTrackerPage({ userId }: { userId: string }) {
         <p className="py-10 text-center text-sm text-muted">Загрузка...</p>
       ) : (
         <div className="mt-5 space-y-4">
-          <section className="rounded-2xl border border-border bg-surface p-4 text-center">
+          <section className="rounded-2xl border border-accent/40 bg-accent/5 p-4 text-center">
             <p className="text-3xl font-bold text-text">{streak}</p>
             <p className="text-sm text-muted">{streak === 1 ? "день подряд" : "дней подряд"}</p>
             <p className="mt-1 text-xs text-muted">Рекорд: {record}</p>
-            {milestonePhrase && <p className="mt-2 text-sm text-accent">{milestonePhrase}</p>}
+            {milestonePhrase && (
+              <p className="mt-2 inline-block rounded-full border border-accent/50 bg-accent/15 px-3 py-1 text-sm text-text">
+                {milestonePhrase}
+              </p>
+            )}
           </section>
 
           <section className="rounded-2xl border border-border bg-surface p-4">
@@ -64,7 +68,7 @@ export function SugarTrackerPage({ userId }: { userId: string }) {
                   key={flag}
                   onClick={() => toggleFlag(today, flag)}
                   className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                    flags[flag] ? "border-red-500/40 bg-red-500/10 text-red-500" : "border-border text-muted hover:bg-surface2"
+                    flags[flag] ? "border-danger/40 bg-danger/10 text-danger" : "border-border text-muted hover:bg-surface2"
                   }`}
                 >
                   {SUGAR_FLAG_LABELS[flag]}

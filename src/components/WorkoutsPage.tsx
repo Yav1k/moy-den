@@ -92,13 +92,13 @@ export function WorkoutsPage({ userId }: { userId: string }) {
       ) : (
         <div className="mt-5 space-y-4">
           {missedYesterday && !shiftAccepted && (
-            <section className="rounded-2xl border border-accent/40 bg-accent/10 p-4">
+            <section className="rounded-2xl border border-primary/40 bg-primary/10 p-4">
               <p className="text-sm text-text">
                 Вчера была пропущена тренировка «{DAY_TYPE_LABELS[scheduledYesterday as "upper" | "lower"]}».
               </p>
               <button
                 onClick={acceptShift}
-                className="mt-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-fg transition hover:opacity-90"
+                className="mt-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-on-fill transition hover:opacity-90"
               >
                 Перенести на сегодня?
               </button>
@@ -115,8 +115,8 @@ export function WorkoutsPage({ userId }: { userId: string }) {
           </section>
 
           {summary && (
-            <section className="rounded-2xl border border-accent/40 bg-accent/10 p-4">
-              <h2 className="text-sm font-semibold text-accent">Тренировка завершена 🎉</h2>
+            <section className="rounded-2xl border border-success/40 bg-success/10 p-4">
+              <h2 className="text-sm font-semibold text-success">Тренировка завершена 🎉</h2>
               <p className="mt-1 text-sm text-text">Длительность: {formatDuration(summary.durationSeconds)}</p>
               <p className="text-sm text-text">Тоннаж: {Math.round(summary.totalTonnage)} кг</p>
               {summary.prevTonnage != null && (
@@ -156,7 +156,7 @@ export function WorkoutsPage({ userId }: { userId: string }) {
                     {exercise.techniqueTip.map((line, i) => (
                       <p key={i}>{line}</p>
                     ))}
-                    <p className="mt-1.5 text-red-500">Не допускай: {exercise.mainMistake}</p>
+                    <p className="mt-1.5 text-danger">Не допускай: {exercise.mainMistake}</p>
                     {exercise.substitution && <p className="mt-1.5 text-muted">Замена: {exercise.substitution}</p>}
                     {exercise.progression && <p className="mt-1 text-muted">{exercise.progression}</p>}
                   </div>
@@ -176,7 +176,7 @@ export function WorkoutsPage({ userId }: { userId: string }) {
                           placeholder="кг"
                           value={d.weight}
                           onChange={(e) => updateDraft(key, { weight: e.target.value })}
-                          className="w-16 rounded-lg border border-border bg-surface2 px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
+                          className="w-16 rounded-lg border border-border bg-surface2 px-2 py-1.5 text-sm text-text outline-none focus:border-primary"
                         />
                         <input
                           type="number"
@@ -184,12 +184,12 @@ export function WorkoutsPage({ userId }: { userId: string }) {
                           placeholder={exercise.trackingType === "seconds" ? "сек" : "повт"}
                           value={d.reps}
                           onChange={(e) => updateDraft(key, { reps: e.target.value })}
-                          className="w-16 rounded-lg border border-border bg-surface2 px-2 py-1.5 text-sm text-text outline-none focus:border-accent"
+                          className="w-16 rounded-lg border border-border bg-surface2 px-2 py-1.5 text-sm text-text outline-none focus:border-primary"
                         />
                         <button
                           onClick={() => confirmSet(exercise, i)}
                           className={`ml-auto flex h-8 w-8 items-center justify-center rounded-full border transition ${
-                            done ? "border-accent bg-accent text-accent-fg" : "border-border text-muted hover:bg-surface2"
+                            done ? "border-success bg-success text-on-fill" : "border-border text-muted hover:bg-surface2"
                           }`}
                           aria-label="Отметить подход"
                         >
@@ -211,7 +211,7 @@ export function WorkoutsPage({ userId }: { userId: string }) {
           {effectiveDayType !== "rest" && !todayCompletedSession && (
             <button
               onClick={finishWorkout}
-              className="w-full rounded-xl bg-accent py-3 text-sm font-semibold text-accent-fg transition hover:opacity-90"
+              className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-on-fill transition hover:opacity-90"
             >
               Тренировка завершена
             </button>
